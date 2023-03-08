@@ -40,7 +40,13 @@
 #define LCD_5x10DOTS 			0x04
 #define LCD_5x8DOTS 			0x00
 
+#define BRIGHTNESS_PWM          htim3
+#define CONTRAST_PWM            htim17
+
 /*------------ Declaring Function Prototype -------------*/
+
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim17;
 
 void LCD_sendCmd(uint8_t data);
 
@@ -59,4 +65,11 @@ void LCD_clear(void);
 void LCD_setCursor(uint8_t row, uint8_t col);
 
 void LCD_scroll(uint8_t isScroll);
+
+void initBriConLCD(void);
+
+void controlContrastLCD(uint8_t percent);
+
+void controlBrightLCD(uint8_t percent);
+
 #endif /* LCD_H_ */

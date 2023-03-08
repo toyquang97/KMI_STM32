@@ -29,8 +29,6 @@ testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h
 testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
 testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h
 testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h
-testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_spi.h
-testrealproject\adc.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_spi_ex.h
 testrealproject\adc.o: ../Inc/adc.h
 testrealproject\adc.o: ../Inc/main.h
 testrealproject\adc.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

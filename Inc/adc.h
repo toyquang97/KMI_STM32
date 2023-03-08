@@ -3,11 +3,12 @@
 
 #include "main.h"
 
-#define ADC_VOL_MES             12 
+#define ADC_VOL_MES             3.2 // this one need to real measure
 #define R3 			            100000
 #define R4 		                10000
+#define OFFSET_VALUE            0.1055       // Now is 10%, need to chose type 1% -> so 0.1 -> 0.01
 
+#define LOW_VOLTAGE_BATTERY     11
 
-
-float analogRead(ADC_HandleTypeDef);
+void readBatteryVoltage(ADC_HandleTypeDef hadc, float *pVoltageData);
 #endif

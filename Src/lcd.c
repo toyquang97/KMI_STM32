@@ -1,13 +1,13 @@
 #include "../Inc/lcd.h"
 void LCD_sendCmd( uint8_t data)
 {
-    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_SET);
     LCD_sendByte(data);
 }
 
 void LCD_sendChar(uint8_t data)
 {
-    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_RESET);
     LCD_sendByte(data);
 }
 
@@ -17,9 +17,9 @@ void LCD_sendNibble(uint8_t data)
     HAL_GPIO_WritePin(D5_GPIO_Port, D5_Pin, (data & 0x02) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(D6_GPIO_Port, D6_Pin, (data & 0x04) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(D7_GPIO_Port, D7_Pin, (data & 0x08) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(EN_GPIO_Port, EN_Pin, GPIO_PIN_SET);
-    HAL_Delay(1);
     HAL_GPIO_WritePin(EN_GPIO_Port, EN_Pin, GPIO_PIN_RESET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(EN_GPIO_Port, EN_Pin, GPIO_PIN_SET);
 }
 
 void LCD_sendByte(uint8_t data)
@@ -39,6 +39,8 @@ void LCD_puts(char *data)
 
 void LCD_init(void)
 {
+    HAL_GPIO_WritePin(RW_GPIO_Port, RW_Pin, GPIO_PIN_SET);
+    initBriConLCD();
     LCD_sendCmd(0x33); // Initialize controller
     LCD_sendCmd(0x32); // Set 4-bit mode
     LCD_sendCmd(0x28); // 4 bit, 2 line, 5x7
@@ -65,4 +67,29 @@ void LCD_scroll(uint8_t isScroll)
 	{
 		LCD_sendCmd(LCD_ENTRYMODESET | LCD_ENTRYSHIFTINCREMENT);
 	}
+}
+
+void controlContrastLCD(uint8_t percent)
+{
+    if(percent > 100) percent = 100;
+    if (percent < 75)  percent = 75; // minimun contrast
+    __HAL_TIM_SetCompare(&htim17,TIM_CHANNEL_1,percent);
+}
+
+// Brightness control by transistor pull low, so pwm should invert
+void controlBrightLCD(uint8_t percent)
+{
+    uint8_t temp = 0;
+    if(percent > 100) percent = 100;
+    temp = 100 - percent;
+    __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,temp);
+}
+
+void initBriConLCD(void)
+{
+    HAL_TIM_PWM_Start(&CONTRAST_PWM,TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&BRIGHTNESS_PWM,TIM_CHANNEL_2);
+    __HAL_TIM_SetCompare(&CONTRAST_PWM,TIM_CHANNEL_1,95);
+    __HAL_TIM_SetCompare(&BRIGHTNESS_PWM,TIM_CHANNEL_2,20);
+
 }

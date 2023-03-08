@@ -22,8 +22,6 @@
 "testrealproject\stm32f0xx_hal_flash.o"
 "testrealproject\stm32f0xx_hal_flash_ex.o"
 "testrealproject\stm32f0xx_hal_exti.o"
-"testrealproject\stm32f0xx_hal_spi.o"
-"testrealproject\stm32f0xx_hal_spi_ex.o"
 "testrealproject\stm32f0xx_hal_tim.o"
 "testrealproject\stm32f0xx_hal_tim_ex.o"
 "testrealproject\system_stm32f0xx.o"

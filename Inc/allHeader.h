@@ -1,0 +1,10 @@
+#include "main.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "stdbool.h"
+#include <string.h>
+#include "kmi_display.h"
+#include "lcd.h"
+#include "button.h"
+#include "MAX31855.h"
+#include "adc.h"

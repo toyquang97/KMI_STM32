@@ -6,39 +6,127 @@
 *************************************************************************************/
 #include"MAX31855.h"
 #include "stm32f0xx_hal.h"
-#include <stdio.h>
-#include <string.h>
-
 
 // ------------------- Variables ----------------
-
+//extern SPI_HandleTypeDef hspi2;
 uint8_t Error=0;                                      // Thermocouple Connection acknowledge Flag
-uint32_t sign=0;									  // Sign bit
-uint8_t DATARX[4];                                    // Raw Data from MAX6675
+uint32_t sign=0;									  // Sign bit                                   // Raw Data from MAX6675
 // ------------------- Functions ----------------
-float Max31855_Read_Temp(SPI_HandleTypeDef hspi)
+uint32_t readThermocoupleData(chamberType_t type)
 {
-	int Temp=0;                                           // Temperature Variable
-	HAL_GPIO_WritePin(SSPORT,SSPIN,GPIO_PIN_RESET);       // Low State for SPI Communication
-	HAL_SPI_Receive(&hspi,DATARX,4,1000);                // DATA Transfer
-	HAL_GPIO_WritePin(SSPORT,SSPIN,GPIO_PIN_SET);         // High State for SPI Communication
-	Error=DATARX[3]&0x07;								  // Error Detection
-	sign=(DATARX[0]&(0x80))>>7;							  // Sign Bit calculation
-
-	if(DATARX[3] & 0x07)								  // Returns Error Number
-	return(-1*(DATARX[3] & 0x07));
-
-	else if(sign==1){									  // Negative Temperature
-	Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
-	//Temp&=0b01111111111111;
-	Temp&=0x1fff;
-	Temp^=0x1fff;
-	return((double)-Temp/4);
-		}
-
-	else												  // Positive Temperature
+	uint32_t rawdata = 0;												   // Temperature Variable
+	if (type == ASPHALT)
 	{
-			Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
-			return((double)Temp / 4);
+		HAL_GPIO_WritePin(SPI_CS1_GPIO_Port, SPI_CS1_Pin, GPIO_PIN_RESET); // Low State for SPI Communication
 	}
+	else
+	{
+		HAL_GPIO_WritePin(SPI_CS2_GPIO_Port, SPI_CS2_Pin, GPIO_PIN_RESET); // Low State for SPI Communication
+	}
+	
+	for (int i = 31; i >= 0; i--)
+	{
+		HAL_GPIO_WritePin(SPI_SCK_GPIO_Port, SPI_SCK_Pin, GPIO_PIN_SET);
+		rawdata = rawdata << 1;
+		rawdata |= HAL_GPIO_ReadPin(SPI_DATA_GPIO_Port, SPI_DATA_Pin) & 1;
+		HAL_GPIO_WritePin(SPI_SCK_GPIO_Port, SPI_SCK_Pin, GPIO_PIN_RESET);
+	}
+	if (type == ASPHALT)
+	{
+		HAL_GPIO_WritePin(SPI_CS1_GPIO_Port, SPI_CS1_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(SPI_CS2_GPIO_Port, SPI_CS2_Pin, GPIO_PIN_SET);
+	}
+																	 	
+	return rawdata; 	
+}
+
+
+errorType_t getErrorType(uint8_t rawData)
+{
+	if(rawData & 0x01) 	return NO_CONNECT;
+	if(rawData & 0x02) 	return SHORT_GND;
+	if(rawData & 0x04) 	return SHORT_VCC;
+	return NONE;
+}
+
+float getTemperatureData(chamberType_t type)
+{
+	bool sign = 0;
+	uint8_t getUnit = 0;
+	uint32_t tempData = 0;
+	uint32_t rawData = 0;
+
+	rawData = readThermocoupleData(type);
+	tempData = (rawData >> 20) & 0x7ff; // get data bit 20 -> bit 30
+	getUnit = (rawData >> 18) & 0x03; // get bit 18,19
+	sign = (rawData >> 30);
+
+	// if(sign) // TODO: implement negative
+	// {
+	// 	// Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
+	// 	// Temp &= 0X1FFF;
+	// 	// Temp ^= 0X1FFF;
+	// 	// return ((double)-Temp / 4);
+	// }
+	// else
+	{
+		return  (tempData + getUnit*25/100.0); 
+	}
+}
+
+float getInternalTempratureData(chamberType_t type)
+{
+	bool sign = 0;
+	uint8_t getUnit = 0;
+	uint32_t tempData = 0;
+
+	uint32_t rawData = 0;
+	rawData = readThermocoupleData(type);
+	tempData = (rawData >> 8) & 0x7f; // get data bit 20 -> bit 30
+	getUnit = (rawData >> 4) & 0x0f ; // get bit 18,19
+	sign = (rawData >> 15);
+	// if(sign) // TODO: implement negative
+	// {
+	// 	// Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
+	// 	// Temp &= 0X1FFF;
+	// 	// Temp ^= 0X1FFF;
+	// 	// return ((double)-Temp / 4);
+	// }
+	// else
+	{
+		return  (tempData + getUnit*6.25/100.0); 
+	}
+}
+
+bool checkFrameData(uint32_t rawData)
+{
+	if(rawData & BIT17 || rawData & BIT3)	return false;
+	return true;
+}
+
+void calibTempratueData(uint32_t *pTemp, uint32_t internalData)
+{
+
+}
+
+void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type)
+{
+	
+}
+
+void readBothSensor(float *pAsphastTemp, float *pCombustionTemp)
+{
+	*pAsphastTemp 	 = getTemperatureData(ASPHALT);
+	*pCombustionTemp = getTemperatureData(COMBUSTION);
+}
+
+
+void sensorInit(void)
+{
+	HAL_GPIO_WritePin(SPI_CS1_GPIO_Port, SPI_CS1_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(SPI_CS2_GPIO_Port, SPI_CS2_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
 }

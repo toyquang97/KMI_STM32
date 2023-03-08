@@ -32,6 +32,4 @@ testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal
 testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
 testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h
 testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h
-testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_spi.h
-testrealproject\kmi_display.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_spi_ex.h
 testrealproject\kmi_display.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

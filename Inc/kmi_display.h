@@ -44,9 +44,9 @@ enum {
 void kmi_display_init(void);
 void kmi_display_startup(void);
 void kmi_display_alarm(void);
-void kmi_display_home(void);
+void kmi_display_home(float asphastTemp, float combustionTemp);
 void kmi_display_menu(void);
-void kmi_display_voltage(uint8_t vol);
+void kmi_display_voltage(float vol);
 void kmi_display_analog(void);
 void kmi_display_IOdiagnostics1(void);
 void kmi_display_IOdiagnostics2(void);

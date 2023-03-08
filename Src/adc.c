@@ -11,17 +11,25 @@
 #include "adc.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
-uint16_t rawdata;
-float data;
 // Used To Get ADC Value
-float analogRead(ADC_HandleTypeDef hadc)
+void readBatteryVoltage(ADC_HandleTypeDef hadc, float *pVoltageData)
 {
-	HAL_ADC_Start(&hadc);
+	uint16_t rawdata;
 	HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
 	rawdata = HAL_ADC_GetValue(&hadc);
-	data = (rawdata) * (ADC_VOL_MES)*((R3 + R4) / R4);
-	data = data/4096;
-	return data;
+	*pVoltageData = (rawdata) * (ADC_VOL_MES)*((R3 + R4) / R4);
+	*pVoltageData = (*pVoltageData)/4095;
+	*pVoltageData = (*pVoltageData) + ((*pVoltageData)*OFFSET_VALUE);
+}
+
+bool checkLowVoltage(float voltage)
+{
+	if (voltage <= LOW_VOLTAGE_BATTERY )
+	{
+		return true;
+	}
+	return false;
 }
 
