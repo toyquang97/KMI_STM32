@@ -54,7 +54,7 @@ errorType_t getErrorType(uint8_t rawData)
 
 float getTemperatureData(chamberType_t type)
 {
-	bool sign = 0;
+//	bool sign = 0;
 	uint8_t getUnit = 0;
 	uint32_t tempData = 0;
 	uint32_t rawData = 0;
@@ -79,7 +79,7 @@ float getTemperatureData(chamberType_t type)
 
 float getInternalTempratureData(chamberType_t type)
 {
-	bool sign = 0;
+	//bool sign = 0;
 	uint8_t getUnit = 0;
 	uint32_t tempData = 0;
 
@@ -114,13 +114,24 @@ void calibTempratueData(uint32_t *pTemp, uint32_t internalData)
 
 void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type)
 {
-	
+//   if (type == CELSIUS)
+//   {
+// 	*pAsphastTemp = ((*pAsphastTemp) - 32) / 1.8;
+// 	*pCombustionTemp = ((*pCombustionTemp) - 32) / 1.8;
+//   }
+//   else 
+  if (type == FAHRENHEIT)
+  {
+    *pAsphastTemp    = (*pAsphastTemp) * 1.8 + 32;
+    *pCombustionTemp = (*pCombustionTemp) * 1.8 + 32;
+  }
 }
 
-void readBothSensor(float *pAsphastTemp, float *pCombustionTemp)
+void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type)
 {
 	*pAsphastTemp 	 = getTemperatureData(ASPHALT);
 	*pCombustionTemp = getTemperatureData(COMBUSTION);
+	convertUnitTemperature(pAsphastTemp, pCombustionTemp, type);
 }
 
 

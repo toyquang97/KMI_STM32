@@ -6,7 +6,10 @@
 *************************************************************************************/
 #ifndef MAX31855_H_
 #define MAX31855_H_
-#include "allHeader.h"
+#include "main.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "stdbool.h"
 
 // ------------------------- Defines -------------------------
 extern uint8_t Error;	   // Error Detection - 1-> No Connection / 2-> Short to GND / 4-> Short to VCC
@@ -69,6 +72,6 @@ float getTemperatureData(chamberType_t type);
 void sensorInit(void);
 bool checkFrameData(uint32_t rawData);
 errorType_t getErrorType(uint8_t rawData);
-void readBothSensor(float *pAsphastTemp, float *pCombustionTemp);
+void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type);
 void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type);
 #endif

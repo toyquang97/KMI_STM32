@@ -11,6 +11,11 @@
 /* Includes ------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 #include "lcd.h"
+#include "main.h"
+#include <stdio.h>
+#include "stdbool.h"
+#include "MAX31855.h"
+#include "string.h"
 
 extern uint8_t state1;
 enum {
@@ -44,9 +49,11 @@ enum {
 void kmi_display_init(void);
 void kmi_display_startup(void);
 void kmi_display_alarm(void);
-void kmi_display_home(float asphastTemp, float combustionTemp);
+void kmi_display_home(void);
+void kmi_redisplay_home(void);
 void kmi_display_menu(void);
-void kmi_display_voltage(float vol);
+void kmi_display_voltage(void);
+void kmi_redisplay_voltage(void);
 void kmi_display_analog(void);
 void kmi_display_IOdiagnostics1(void);
 void kmi_display_IOdiagnostics2(void);
@@ -54,7 +61,7 @@ void kmi_display_IOdiagnostics3(void);
 void kmi_display_IOdiagnostics4(void);
 void kmi_display_settings(void);
 void kmi_display_temp (void);
-void kmi_display_temp_unit (uint8_t temp);
+void kmi_display_temp_unit (void);
 void kmi_display_temp_setpoint (void);
 void kmi_display_asph_setpoint (void);
 void kmi_display_comb_setpoint (void);

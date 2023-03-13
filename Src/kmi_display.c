@@ -9,16 +9,16 @@
 /*----------------------------------------------------------------------------*/
 
 #include "kmi_display.h"
-#include "main.h"
-#include <stdio.h>
-#include "stdbool.h"
+
 
 uint8_t state1;
-
 extern float gVoltageBattery;
 extern float gAsphaltTemp;
 extern float gCombustionTemp;
-extern bool gUintTemperature;
+extern unitTempType_t gUintTemperatureSet;
+
+char versionControl[5] = "1.00";
+
 void kmi_display_init(void)
 {
 	LCD_init();
@@ -28,6 +28,7 @@ void kmi_display_init(void)
 void kmi_display_startup(void)
 {
 	state1 = STARTUP_PAGE;
+	char versionStr[8]; 
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("K-M INTERNATIONAL");
@@ -36,7 +37,9 @@ void kmi_display_startup(void)
 	LCD_setCursor(2, 0);
 	LCD_puts("HB-CP-C2");
 	LCD_setCursor(3, 0);
-	LCD_puts("REV #.##");
+	sprintf(versionStr,"REV %s", versionControl);
+	LCD_puts(versionStr);
+	//LCD_puts("REV #.##");
 	LCD_setCursor(3, 19);
 	LCD_puts("#");
 }
@@ -55,20 +58,55 @@ void kmi_display_alarm(void)
 	LCD_puts("POWER OFF TO RESET");
 }
 
-void kmi_display_home(float asphastTemp, float combustionTemp)
+void kmi_display_home(void)
 {
-	char buff[20];
 	state1 = HOME_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 2);
 	LCD_puts("  TEMPERATURES");
 	LCD_setCursor(1, 0);
 	LCD_puts("ASPHALT   COMBUSTION");
-	LCD_setCursor(2, 0);
-	sprintf(buff," %.1fF       %.1fF",asphastTemp, combustionTemp);
-	LCD_puts(buff);
 	LCD_setCursor(3, 13);
 	LCD_puts("MENU-->");
+}
+
+void kmi_redisplay_home(void)
+{
+	char buffAsphalt[10];
+	char buffCombustion[10];
+	state1 = HOME_PAGE;
+	
+	sprintf(buffAsphalt,   " %.2f", gAsphaltTemp);
+	sprintf(buffCombustion," %.2f", gCombustionTemp);
+
+	LCD_setCursor(2, 0);
+    if (gAsphaltTemp >= 100)
+	{
+		sprintf(buffAsphalt,"%.2f", gAsphaltTemp);
+	}
+	
+	if (gCombustionTemp >= 1000)
+	{
+		sprintf(buffCombustion,"%.2f", gCombustionTemp);
+	}
+	
+	if (gUintTemperatureSet == CELSIUS)
+	{
+		strcat(buffAsphalt, "C ");
+		strcat(buffCombustion, "C");
+	}
+	else if (gUintTemperatureSet == FAHRENHEIT)
+	{
+		strcat(buffAsphalt, "F ");
+		strcat(buffCombustion, "F");
+	}
+	LCD_puts(buffAsphalt);
+	LCD_setCursor(2, 19);
+	LCD_puts(" ");
+	LCD_setCursor(2, 12);
+	LCD_puts(buffCombustion);
+
+
 }
 
 void kmi_display_menu(void)
@@ -85,7 +123,16 @@ void kmi_display_menu(void)
 	LCD_puts("HOME-->");
 }
 
-void kmi_display_voltage(float vol)
+void kmi_redisplay_voltage(void)
+{
+	state1 = VOLTAGE_PAGE;
+	char buff[20];
+	LCD_setCursor(1, 0);
+	sprintf(buff,"%.2f  VDC",gVoltageBattery);
+	LCD_puts(buff);
+}
+
+void kmi_display_voltage(void)
 {
 	state1 = VOLTAGE_PAGE;
 	char buff[20];
@@ -93,11 +140,10 @@ void kmi_display_voltage(float vol)
 	LCD_setCursor(0, 0);
 	LCD_puts("BATTERY VOLTS");
 	LCD_setCursor(1, 0);
-	sprintf(buff,"%.2f  VDC",vol);
+	sprintf(buff,"%.2f  VDC",gVoltageBattery);
 	LCD_puts(buff);
 	LCD_setCursor(3, 13);
 	LCD_puts("MENU-->");
-
 }
 
 void kmi_display_analog(void)
@@ -196,7 +242,7 @@ void kmi_display_temp (void)
 	LCD_puts("              ESC-->");
 }
 
-void kmi_display_temp_unit (uint8_t temp)
+void kmi_display_temp_unit (void)
 {
 	state1 = TEMP_UNIT_PAGE;
 	char buff[20];
@@ -204,7 +250,14 @@ void kmi_display_temp_unit (uint8_t temp)
 	LCD_setCursor(0, 0);
 	LCD_puts("TEMPERATURE UNITS");
 	LCD_setCursor(1, 0);
-	sprintf(buff,"%d         CYCLE-->",temp);
+	if (gUintTemperatureSet == CELSIUS)
+	{
+	  sprintf(buff,"%d         CYCLE-->","deg C");
+	}
+	else if (gUintTemperatureSet == FAHRENHEIT)
+	{
+	  sprintf(buff,"%d         CYCLE-->","deg F");
+	}
 	LCD_puts(buff);
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
@@ -366,7 +419,7 @@ void kmi_change_display(uint8_t userValue)
 			kmi_display_alarm();
 			break;
 		case HOME_PAGE:
-			kmi_display_home(gAsphaltTemp, gCombustionTemp);
+			kmi_display_home();
 			break;
 		case MENU_PAGE:
 			kmi_display_menu();
@@ -387,7 +440,7 @@ void kmi_change_display(uint8_t userValue)
 			kmi_display_IOdiagnostics4();
 			break;
 		case VOLTAGE_PAGE:
-			kmi_display_voltage(gVoltageBattery);
+			kmi_display_voltage();
 			break;     
 		case ANALOG_PAGE:
 			kmi_display_analog();
@@ -402,7 +455,7 @@ void kmi_change_display(uint8_t userValue)
 			kmi_display_temp();
 			break;          
         case TEMP_UNIT_PAGE:
-			kmi_display_temp_unit(gUintTemperature);
+			kmi_display_temp_unit();
 			break;          
         case TEMP_SETPOINTS_PAGE:
 			kmi_display_temp_setpoint();

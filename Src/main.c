@@ -26,7 +26,9 @@
 #include "kmi_display.h"
 #include"MAX31855.h"
 #include"adc.h"
+#include "button.h"
 #include "stdbool.h"
+#include "stateMachine.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +51,6 @@ ADC_HandleTypeDef hadc;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim17;
-
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -77,7 +78,12 @@ float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
 bool gFlagReadInput5ms = 0;
-bool gUintTemperature = 0;
+bool gFlagReadInput10ms = 0;
+bool gFlagReadInput50ms = 0;
+bool gFlagReadInput100ms = 0;
+bool gFlagReadInput500ms = 0;
+unitTempType_t gUintTemperatureSet = CELSIUS;
+buttonCall_t gButton;
 
 
 /* USER CODE END 0 */
@@ -87,6 +93,7 @@ bool gUintTemperature = 0;
   * @retval int
   */
 int main(void)
+
 {
   /* USER CODE BEGIN 1 */
 
@@ -117,12 +124,14 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);
-	HAL_ADC_Start(&hadc);
-
-  HAL_Delay(1000);
+	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUintTemperatureSet);
+  HAL_Delay(100);
   sensorInit();
   kmi_display_init();
   kmi_change_display(STARTUP_PAGE);
+  HAL_Delay(2000);
+  kmi_change_display(HOME_PAGE);
+
 
   /* USER CODE END 2 */
 
@@ -134,187 +143,30 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    
+
     if(gFlagReadInput5ms)
     {
-      //readBatteryVoltage(hadc, &gVoltageBattery);
-      readBothSensor(&gAsphaltTemp, &gCombustionTemp);
+      readBatteryVoltage(hadc, &gVoltageBattery);
+      readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUintTemperatureSet);
       gFlagReadInput5ms = 0;
     }
+    if(gFlagReadInput10ms)
+    {
+      readButtonWorking(&gButton);
+      onScreenDisplay();
+      gFlagReadInput10ms = 0;
+    }
+    if(gFlagReadInput100ms)
+    {
+      reloadPageNeeded();
+      gFlagReadInput100ms = 0;
+    }
+    if(gFlagReadInput500ms)
+    {
+      HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
+      gFlagReadInput500ms = 0;
+    }
 		
-#if 0
-    if (HAL_GPIO_ReadPin(BT1_GPIO_Port, BT1_Pin) == GPIO_PIN_RESET)
-    {
-      switch (state1)
-      {
-      case STARTUP_PAGE:
-        kmi_change_display(MENU_PAGE);
-        break;
-      case MENU_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
-        break;
-      case SETTINGS_PAGE:
-        kmi_change_display(RUNTIMES_PAGE);
-        break;
-      case RUNTIMES_PAGE:
-        kmi_change_display(BURNER_RUNTIMES_PAGE);
-        break;
-      case CP_RESET_AUTH_PAGE:
-        kmi_change_display(CP_RUNTIMES_PAGE);
-        break;
-      case BURNER_RESET_AUTH_PAGE:
-        kmi_change_display(BURNER_RUNTIMES_PAGE);
-        break;
-      case BURNER_RUNTIMES_PAGE:
-        kmi_change_display(BURNER_RESET_AUTH_PAGE);
-        break;
-      case CP_RUNTIMES_PAGE:
-        kmi_change_display(CP_RESET_AUTH_PAGE);
-        break;
-      case IO_DIAGNOSTICS_1_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_2_PAGE);
-        break;
-      case IO_DIAGNOSTICS_2_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_3_PAGE);
-        break;
-      case IO_DIAGNOSTICS_3_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_4_PAGE);
-        break;
-      case IO_DIAGNOSTICS_4_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_1_PAGE);
-        break;
-      case ANALOG_PAGE:
-        kmi_change_display(BURNER_PAGE);
-        break;
-      case BURNER_DELAY_SETTINGS_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
-        break;
-      case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(ASPHALT_SETPOINTS_PAGE);
-        break;
-      case ASPHALT_SETPOINTS_PAGE:
-        kmi_change_display(TEMP_SETPOINTS_PAGE);
-        break;
-      case COMBUSTION_SETPOINTS_PAGE:
-        kmi_change_display(TEMP_SETPOINTS_PAGE);
-        break;
-
-      default:
-        break;
-      }
-    }
-    ////Button2////
-    if (HAL_GPIO_ReadPin(BT2_GPIO_Port, BT2_Pin) == GPIO_PIN_RESET)
-    {
-      switch (state1)
-      {
-      case MENU_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_1_PAGE);
-        break;
-      case RUNTIMES_PAGE:
-        kmi_change_display(CP_RUNTIMES_PAGE);
-        break;
-      case TEMP_PAGE:
-        kmi_change_display(TEMP_SETPOINTS_PAGE);
-        break;
-      case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(ASPHALT_SETPOINTS_PAGE);
-        break;
-      case SETTINGS_PAGE:
-        kmi_change_display(BURNER_DELAY_SETTINGS_PAGE);
-        break;
-      default:
-        break;
-      }
-    }
-    ////Button3////
-    if (HAL_GPIO_ReadPin(BT3_GPIO_Port, BT3_Pin) == GPIO_PIN_RESET)
-    {
-      switch (state1)
-      {
-      case MENU_PAGE:
-        voltage = analogRead(hadc);
-        kmi_display_voltage(voltage);
-        break;
-      case SETTINGS_PAGE:
-        kmi_change_display(TEMP_PAGE);
-        break;
-      case ANALOG_PAGE:
-        kmi_change_display(ASPHALT_PAGE);
-        break;
-      case TEMP_PAGE:
-        temp = Max31855_Read_Temp(hspi2);
-        kmi_change_display(TEMP_UNIT_PAGE);
-        break;
-      case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(ASPHALT_SETPOINTS_PAGE);
-        break;
-      default:
-        break;
-      }
-    }
-    ////Button4////
-    if (HAL_GPIO_ReadPin(BT4_GPIO_Port, BT4_Pin) == GPIO_PIN_RESET)
-    {
-      switch (state1)
-      {
-      case MENU_PAGE:
-        kmi_change_display(HOME_PAGE);
-        break;
-      case SETTINGS_PAGE:
-      case IO_DIAGNOSTICS_1_PAGE:
-      case IO_DIAGNOSTICS_2_PAGE:
-      case IO_DIAGNOSTICS_3_PAGE:
-      case IO_DIAGNOSTICS_4_PAGE:
-      case VOLTAGE_PAGE:
-      case ANALOG_PAGE:
-      case HOME_PAGE:
-        kmi_change_display(MENU_PAGE);
-        break;
-      case TEMP_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
-        break;
-      case TEMP_UNIT_PAGE:
-        kmi_change_display(TEMP_PAGE);
-        break;
-      case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(TEMP_PAGE);
-        break;
-      case COMBUSTION_SETPOINTS_PAGE:
-        kmi_change_display(TEMP_SETPOINTS_PAGE);
-        break;
-      case ASPHALT_SETPOINTS_PAGE:
-        kmi_change_display(TEMP_SETPOINTS_PAGE);
-        break;
-      case RUNTIMES_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
-        break;
-      case CP_RESET_AUTH_PAGE:
-        kmi_change_display(CP_RUNTIMES_PAGE);
-        break;
-      case BURNER_RESET_AUTH_PAGE:
-        kmi_change_display(BURNER_RUNTIMES_PAGE);
-        break;
-      case BURNER_RUNTIMES_PAGE:
-        kmi_change_display(RUNTIMES_PAGE);
-        break;
-      case CP_RUNTIMES_PAGE:
-        kmi_change_display(RUNTIMES_PAGE);
-        break;
-      case BURNER_PAGE:
-        kmi_change_display(ANALOG_PAGE);
-        break;
-      case ASPHALT_PAGE:
-        kmi_change_display(ANALOG_PAGE);
-        break;
-      case BURNER_DELAY_SETTINGS_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
-        break;
-      default:
-        break;
-      }
-    }
-		#endif
   }
   /* USER CODE END 3 */
 }
