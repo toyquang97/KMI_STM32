@@ -11,5 +11,6 @@ extern uint8_t state1;
 extern buttonCall_t gButton;
 
 void onScreenDisplay(void);
+void changeUnitTemperature(void);
 void reloadPageNeeded(void);
 #endif

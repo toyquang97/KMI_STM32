@@ -1,5 +1,6 @@
 #include "stateMachine.h"
 
+extern unitTempType_t gUintTemperatureSet;
 
 void onScreenDisplay(void)
 {
@@ -26,19 +27,21 @@ void onScreenDisplay(void)
         break;
       }
     }
-    
     if (!gButton.button2)
     {
       switch (state1)
       {
       case MENU_PAGE:
-        kmi_change_display(IO_DIAGNOSTICS_1_PAGE);
+        kmi_change_display(SETTINGS_PAGE);
         break;
       case RUNTIMES_PAGE:
         kmi_change_display(CP_RUNTIMES_PAGE);
         break;
       case TEMP_PAGE:
         kmi_change_display(TEMP_SETPOINTS_PAGE);
+        break;
+      case TEMP_UNIT_PAGE:
+        changeUnitTemperature();
         break;
       case TEMP_SETPOINTS_PAGE:
         kmi_change_display(ASPHALT_SETPOINTS_PAGE);
@@ -59,7 +62,7 @@ void onScreenDisplay(void)
         kmi_change_display(MENU_PAGE);
         break;
       case MENU_PAGE:
-        kmi_change_display(SETTINGS_PAGE);
+        kmi_change_display(HOME_PAGE);
         break;
       case SETTINGS_PAGE:
         kmi_change_display(RUNTIMES_PAGE);
@@ -98,7 +101,7 @@ void onScreenDisplay(void)
         kmi_change_display(SETTINGS_PAGE);
         break;
       case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(ASPHALT_SETPOINTS_PAGE);
+        kmi_change_display(COMBUSTION_SETPOINTS_PAGE);
         break;
       case ASPHALT_SETPOINTS_PAGE:
         kmi_change_display(TEMP_SETPOINTS_PAGE);
@@ -116,9 +119,6 @@ void onScreenDisplay(void)
     {
       switch (state1)
       {
-      case MENU_PAGE:
-        kmi_change_display(HOME_PAGE);
-        break;
       case SETTINGS_PAGE:
       case IO_DIAGNOSTICS_1_PAGE:
       case IO_DIAGNOSTICS_2_PAGE:
@@ -174,15 +174,31 @@ void onScreenDisplay(void)
     }
 }
 
+void changeUnitTemperature(void)
+{
+    if (gUintTemperatureSet == CELSIUS)
+    {
+      gUintTemperatureSet = FAHRENHEIT;
+    }
+    else
+    {
+      gUintTemperatureSet = CELSIUS;
+    }
+    HAL_Delay(200);
+}
+
 void reloadPageNeeded(void)
 {
     switch (state1)
     {
         case HOME_PAGE:
-        kmi_redisplay_home();
+            kmi_redisplay_home();
         break;
         case VOLTAGE_PAGE:
-        kmi_redisplay_voltage();
+            kmi_redisplay_voltage();
+        break;
+        case TEMP_UNIT_PAGE:
+            kmi_redisplay_temp_unit();
         break;
     }
 }

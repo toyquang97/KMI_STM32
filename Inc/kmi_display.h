@@ -62,6 +62,7 @@ void kmi_display_IOdiagnostics4(void);
 void kmi_display_settings(void);
 void kmi_display_temp (void);
 void kmi_display_temp_unit (void);
+void kmi_redisplay_temp_unit (void);
 void kmi_display_temp_setpoint (void);
 void kmi_display_asph_setpoint (void);
 void kmi_display_comb_setpoint (void);

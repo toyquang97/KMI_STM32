@@ -115,11 +115,9 @@ void kmi_display_menu(void)
 	LCD_clear();
 	LCD_setCursor(0, 10);
 	LCD_puts("VOLTAGE-->");
-	LCD_setCursor(1, 2);
-	LCD_puts("I/O DIAGNOSTICS-->");
-	LCD_setCursor(2, 9);
+	LCD_setCursor(1, 9);
 	LCD_puts("SETTINGS-->");
-	LCD_setCursor(3, 13);
+	LCD_setCursor(2, 13);
 	LCD_puts("HOME-->");
 }
 
@@ -239,7 +237,7 @@ void kmi_display_temp (void)
 	LCD_setCursor(1, 0);
 	LCD_puts("        SETPOINTS-->");
 	LCD_setCursor(3, 0);
-	LCD_puts("              ESC-->");
+	LCD_puts("             BACK-->");
 }
 
 void kmi_display_temp_unit (void)
@@ -250,17 +248,28 @@ void kmi_display_temp_unit (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("TEMPERATURE UNITS");
 	LCD_setCursor(1, 0);
-	if (gUintTemperatureSet == CELSIUS)
-	{
-	  sprintf(buff,"%d         CYCLE-->","deg C");
-	}
-	else if (gUintTemperatureSet == FAHRENHEIT)
-	{
-	  sprintf(buff,"%d         CYCLE-->","deg F");
-	}
 	LCD_puts(buff);
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+}
+
+void kmi_redisplay_temp_unit (void)
+{
+	state1 = TEMP_UNIT_PAGE;
+	char buff[20];
+	LCD_setCursor(1, 0);
+	if (gUintTemperatureSet == CELSIUS)
+	{
+	  strcpy(buff, "deg C");
+	}
+	else if (gUintTemperatureSet == FAHRENHEIT)
+	{
+		strcpy(buff, "deg F");
+	}
+	LCD_puts(buff);
+	LCD_setCursor(1, 12);
+	strcpy(buff, "CYCLE-->");
+	LCD_puts(buff);
 }
 
 void kmi_display_temp_setpoint (void)
@@ -274,7 +283,7 @@ void kmi_display_temp_setpoint (void)
 	LCD_setCursor(2, 0);
 	LCD_puts("       COMBUSTION-->");
 	LCD_setCursor(3, 0);
-	LCD_puts("              ESC-->");
+	LCD_puts("             BACK-->");
 }
 
 void kmi_display_asph_setpoint (void)
@@ -298,11 +307,11 @@ void kmi_display_comb_setpoint (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("COMBUSTION SET     ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("TARGET ###F        >");
+	LCD_puts("ALARM ###F         >");
 	LCD_setCursor(2, 0);
-	LCD_puts("LO/ENA ###F   ESC-->");
+	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
-	LCD_puts("       OK-->        ");
+	LCD_puts("               OK-->");
 }
 
 void kmi_display_burner_delay_setting (void)
@@ -312,7 +321,7 @@ void kmi_display_burner_delay_setting (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("BURNER DELAY TIME  ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("### HR              ");
+	LCD_puts("### HR             >");
 	LCD_setCursor(2, 0);
 	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
@@ -363,7 +372,7 @@ void kmi_display_cp_reset_auth (void)
 
 void kmi_display_burner_runtime (void)
 {
-	state1 = CP_RUNTIMES_PAGE;
+	state1 = BURNER_RUNTIMES_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("BURNER RUN TIME");

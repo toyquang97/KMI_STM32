@@ -3,7 +3,7 @@
 #include "main.h"
 #include <stdio.h>
 #include "stdbool.h"
-
+extern bool gTriggerAlarm;
 typedef enum 
 {
     IPRESS,
@@ -22,5 +22,6 @@ typedef struct
 }buttonCall_t;
 
 void readButtonWorking(buttonCall_t *pButton);
+void burnerWorkingCondition(buttonCall_t pButton);
 
 #endif

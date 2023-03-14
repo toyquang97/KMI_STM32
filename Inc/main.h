@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define KEEP_DEBUG 0
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -66,8 +66,10 @@ void Error_Handler(void);
 #define BT1_GPIO_Port GPIOC
 #define E_STOP_Pin GPIO_PIN_0
 #define E_STOP_GPIO_Port GPIOA
-#define SW_BUNRNER_Pin GPIO_PIN_1
-#define SW_BUNRNER_GPIO_Port GPIOA
+#define EN_BURNER_Pin GPIO_PIN_1
+#define EN_BURNER_GPIO_Port GPIOA
+#define BUZZER_Pin GPIO_PIN_2
+#define BUZZER_GPIO_Port GPIOA
 #define BURNER_EN_Pin GPIO_PIN_4
 #define BURNER_EN_GPIO_Port GPIOF
 #define RL_CM_Pin GPIO_PIN_5

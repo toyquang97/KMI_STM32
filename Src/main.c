@@ -29,6 +29,7 @@
 #include "button.h"
 #include "stdbool.h"
 #include "stateMachine.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,7 +74,7 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 uint8_t error = 0;
-bool gCheckChangeStatus = 0;
+bool gTriggerAlarm = 0;
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
@@ -93,7 +94,6 @@ buttonCall_t gButton;
   * @retval int
   */
 int main(void)
-
 {
   /* USER CODE BEGIN 1 */
 
@@ -129,7 +129,7 @@ int main(void)
   sensorInit();
   kmi_display_init();
   kmi_change_display(STARTUP_PAGE);
-  HAL_Delay(2000);
+  HAL_Delay(1000);
   kmi_change_display(HOME_PAGE);
 
 
@@ -156,6 +156,14 @@ int main(void)
       onScreenDisplay();
       gFlagReadInput10ms = 0;
     }
+    if(gFlagReadInput50ms)
+    {
+      burnerWorkingCondition(gButton);
+#if KEEP_DEBUG
+      memset(&gButton, 1, 4);
+#endif
+      gFlagReadInput50ms = 0;
+    }
     if(gFlagReadInput100ms)
     {
       reloadPageNeeded();
@@ -165,6 +173,7 @@ int main(void)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
       gFlagReadInput500ms = 0;
+
     }
 		
   }
@@ -468,7 +477,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2|RL_CR2_Pin|LED1_Pin|LD2_Pin 
+  HAL_GPIO_WritePin(GPIOA, BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LD2_Pin 
                           |D6_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -487,15 +496,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : E_STOP_Pin SW_BUNRNER_Pin */
-  GPIO_InitStruct.Pin = E_STOP_Pin|SW_BUNRNER_Pin;
+  /*Configure GPIO pins : E_STOP_Pin EN_BURNER_Pin BT4_Pin BT3_Pin */
+  GPIO_InitStruct.Pin = E_STOP_Pin|EN_BURNER_Pin|BT4_Pin|BT3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA2 RL_CR2_Pin LED1_Pin LD2_Pin 
+  /*Configure GPIO pins : BUZZER_Pin RL_CR2_Pin LED1_Pin LD2_Pin 
                            D6_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|RL_CR2_Pin|LED1_Pin|LD2_Pin 
+  GPIO_InitStruct.Pin = BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LD2_Pin 
                           |D6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -528,12 +537,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(SPI_DATA_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : BT4_Pin BT3_Pin */
-  GPIO_InitStruct.Pin = BT4_Pin|BT3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : D5_Pin D4_Pin D3_Pin */
   GPIO_InitStruct.Pin = D5_Pin|D4_Pin|D3_Pin;
