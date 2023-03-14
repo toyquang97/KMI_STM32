@@ -1,7 +1,13 @@
 #include "stateMachine.h"
 
 extern unitTempType_t gUintTemperatureSet;
-
+extern float gTargetTempAsphaltSet;
+extern float gLowTempEnableAsphaltSet;
+extern float gAlarmTempCombustionSet;
+extern float gCpRuntime;
+extern float gBurnerRuntime;
+extern uint32_t gCPResetPassword;
+extern uint32_t gBurnerRuntimeResetPassword;
 void onScreenDisplay(void)
 {
     if (!gButton.button1)
@@ -46,6 +52,9 @@ void onScreenDisplay(void)
       case TEMP_SETPOINTS_PAGE:
         kmi_change_display(ASPHALT_SETPOINTS_PAGE);
         break;
+      case ASPHALT_SETPOINTS_PAGE:
+        setAsphaltSetpoint();
+        break;
       case SETTINGS_PAGE:
         kmi_change_display(BURNER_DELAY_SETTINGS_PAGE);
         break;
@@ -71,9 +80,11 @@ void onScreenDisplay(void)
         kmi_change_display(BURNER_RUNTIMES_PAGE);
         break;
       case CP_RESET_AUTH_PAGE:
+        clearCursorLCD();
         kmi_change_display(CP_RUNTIMES_PAGE);
         break;
       case BURNER_RESET_AUTH_PAGE:
+        clearCursorLCD();
         kmi_change_display(BURNER_RUNTIMES_PAGE);
         break;
       case BURNER_RUNTIMES_PAGE:
@@ -104,9 +115,11 @@ void onScreenDisplay(void)
         kmi_change_display(COMBUSTION_SETPOINTS_PAGE);
         break;
       case ASPHALT_SETPOINTS_PAGE:
+        clearCursorLCD();
         kmi_change_display(TEMP_SETPOINTS_PAGE);
         break;
       case COMBUSTION_SETPOINTS_PAGE:
+        clearCursorLCD();
         kmi_change_display(TEMP_SETPOINTS_PAGE);
         break;
 
@@ -139,18 +152,22 @@ void onScreenDisplay(void)
         kmi_change_display(TEMP_PAGE);
         break;
       case COMBUSTION_SETPOINTS_PAGE:
+        clearCursorLCD();
         kmi_change_display(TEMP_SETPOINTS_PAGE);
         break;
       case ASPHALT_SETPOINTS_PAGE:
+        clearCursorLCD();
         kmi_change_display(TEMP_SETPOINTS_PAGE);
         break;
       case RUNTIMES_PAGE:
         kmi_change_display(SETTINGS_PAGE);
         break;
       case CP_RESET_AUTH_PAGE:
+        clearCursorLCD();
         kmi_change_display(CP_RUNTIMES_PAGE);
         break;
       case BURNER_RESET_AUTH_PAGE:
+        clearCursorLCD();
         kmi_change_display(BURNER_RUNTIMES_PAGE);
         break;
       case BURNER_RUNTIMES_PAGE:
@@ -185,6 +202,37 @@ void changeUnitTemperature(void)
       gUintTemperatureSet = CELSIUS;
     }
     HAL_Delay(200);
+}
+
+void clearCursorLCD(void)
+{
+    LCD_sendCmd(0x0C);
+}
+
+void setAsphaltSetpoint(void)
+{
+    static uint8_t index = 0;
+    
+	LCD_setCursor(1, 6);
+    LCD_sendCmd(0x0D);
+}
+
+
+void setCombustionSetpoint(void)
+{
+	LCD_setCursor(2, 7);
+    LCD_sendCmd(0x0D);
+}
+
+void setBunerDelaySetpoint(void)
+{
+
+}
+
+
+void setPasswordReset(void)
+{
+
 }
 
 void reloadPageNeeded(void)
