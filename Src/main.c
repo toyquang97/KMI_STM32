@@ -83,7 +83,14 @@ bool gFlagReadInput10ms = 0;
 bool gFlagReadInput50ms = 0;
 bool gFlagReadInput100ms = 0;
 bool gFlagReadInput500ms = 0;
-unitTempType_t gUintTemperatureSet = CELSIUS;
+float gTargetTempAsphaltSet = 0;
+float gLowTempEnableAsphaltSet = 0;
+float gAlarmTempCombustionSet = 0;
+float gCpRuntime = 0;
+float gBurnerRuntime = 0;
+uint32_t gCPResetPassword = 0;
+uint32_t gBurnerRuntimeResetPassword = 0;
+unitTempType_t gUintTemperatureSet = FAHRENHEIT;
 buttonCall_t gButton;
 
 

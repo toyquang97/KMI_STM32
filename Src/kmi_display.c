@@ -298,20 +298,25 @@ void kmi_display_asph_setpoint (void)
 	LCD_puts("LO/ENA ### F  ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+	LCD_setCursor(1, 7);
+	LCD_sendCmd(0x0D);
 }
 
 void kmi_display_comb_setpoint (void)
 {
 	state1 = COMBUSTION_SETPOINTS_PAGE;
 	LCD_clear();
+
 	LCD_setCursor(0, 0);
 	LCD_puts("COMBUSTION SET     ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("ALARM ###F         >");
+	LCD_puts("ALARM ### F        >");
 	LCD_setCursor(2, 0);
 	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+	LCD_setCursor(1, 6);
+	LCD_sendCmd(0x0D);
 }
 
 void kmi_display_burner_delay_setting (void)
@@ -368,6 +373,8 @@ void kmi_display_cp_reset_auth (void)
 	LCD_puts("####          ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+	LCD_setCursor(2, 0);
+	LCD_sendCmd(0x0D);
 }
 
 void kmi_display_burner_runtime (void)
@@ -396,6 +403,8 @@ void kmi_display_burner_reset_auth (void)
 	LCD_puts("####          ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+	LCD_setCursor(2, 0);
+	LCD_sendCmd(0x0D);
 }
 void kmi_display_burner (void)
 {
