@@ -20,7 +20,6 @@
 extern uint8_t state1;
 enum {
   STARTUP_PAGE,
-  ARLARM_PAGE,
   HOME_PAGE,
   MENU_PAGE,
   VOLTAGE_PAGE,
@@ -43,12 +42,18 @@ enum {
   CP_RESET_AUTH_PAGE,
   BURNER_RUNTIMES_PAGE,
   BURNER_RESET_AUTH_PAGE,
+  LOW_VOL_ALARM_PAGE,
+  ASPHALT_DIS_PAGE,
+  COMBUSTION_DIS_PAGE,
+  ASPHALT_SHORT_PAGE,
+  COMBUSTION_SHORT_PAGE,
+  OVERTEMP_PAGE,
+  EMER_STOP_PAGE,
 };
 /* Functions ------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 void kmi_display_init(void);
 void kmi_display_startup(void);
-void kmi_display_alarm(void);
 void kmi_display_home(void);
 void kmi_redisplay_home(void);
 void kmi_display_menu(void);
@@ -76,4 +81,13 @@ void kmi_display_phalt (void);
 void kmi_display_burner (void);
 void kmi_change_display(uint8_t userValue);
 void kmi_blinking_cursor (uint8_t userValue);
+void kmi_display_alarm_low_vol(void);
+void kmi_redisplay_alarm_low_vol(void);
+void kmi_display_alarm_asphalt_dis(void);
+void kmi_display_alarm_combustion_dis(void);
+void kmi_display_alarm_asphalt_shorted(void);
+void kmi_display_alarm_combustion_shorted(void);
+void kmi_display_alarm_over_temp(void);
+void kmi_display_alarm_emer_stop(void);
+
 #endif /* INC_KMI_DISPLAY_H_ */

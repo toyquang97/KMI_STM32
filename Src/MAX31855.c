@@ -5,12 +5,7 @@
  Hardware:  Any STM32 device
 *************************************************************************************/
 #include"MAX31855.h"
-#include "stm32f0xx_hal.h"
 
-// ------------------- Variables ----------------
-//extern SPI_HandleTypeDef hspi2;
-uint8_t Error=0;                                      // Thermocouple Connection acknowledge Flag
-uint32_t sign=0;									  // Sign bit                                   // Raw Data from MAX6675
 // ------------------- Functions ----------------
 uint32_t readThermocoupleData(chamberType_t type)
 {
@@ -43,7 +38,6 @@ uint32_t readThermocoupleData(chamberType_t type)
 	return rawdata; 	
 }
 
-
 errorType_t getErrorType(uint8_t rawData)
 {
 	if(rawData & 0x01) 	return NO_CONNECT;
@@ -52,53 +46,34 @@ errorType_t getErrorType(uint8_t rawData)
 	return NONE;
 }
 
-float getTemperatureData(chamberType_t type)
+float getTemperatureData(int type)
 {
-//	bool sign = 0;
-	uint8_t getUnit = 0;
 	uint32_t tempData = 0;
 	uint32_t rawData = 0;
 
 	rawData = readThermocoupleData(type);
-	tempData = (rawData >> 20) & 0x7ff; // get data bit 20 -> bit 30
-	getUnit = (rawData >> 18) & 0x03; // get bit 18,19
-	sign = (rawData >> 30);
-
-	// if(sign) // TODO: implement negative
-	// {
-	// 	// Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
-	// 	// Temp &= 0X1FFF;
-	// 	// Temp ^= 0X1FFF;
-	// 	// return ((double)-Temp / 4);
-	// }
-	// else
+	tempData = (rawData >> 18) & 0x1FFF; // get data bit 18 -> bit 30
+	if (rawData >> 31) // get sign
 	{
-		return  (tempData + getUnit*25/100.0); 
+		tempData = (~tempData + 1) & 0x1FFF;
+		return (-((float)tempData * 0.25));
 	}
+	return  ((float)tempData * 0.25); 
 }
 
-float getInternalTempratureData(chamberType_t type)
+float getInternalTempratureData(int type)
 {
-	//bool sign = 0;
-	uint8_t getUnit = 0;
 	uint32_t tempData = 0;
-
 	uint32_t rawData = 0;
+
 	rawData = readThermocoupleData(type);
-	tempData = (rawData >> 8) & 0x7f; // get data bit 20 -> bit 30
-	getUnit = (rawData >> 4) & 0x0f ; // get bit 18,19
-	sign = (rawData >> 15);
-	// if(sign) // TODO: implement negative
-	// {
-	// 	// Temp = (DATARX[0] << 6) | (DATARX[1] >> 2);
-	// 	// Temp &= 0X1FFF;
-	// 	// Temp ^= 0X1FFF;
-	// 	// return ((double)-Temp / 4);
-	// }
-	// else
+	tempData = (rawData >> 4) & 0x7FF; // get data bit 4 -> bit 14
+	if ((rawData >> 15) & 1) // get sign
 	{
-		return  (tempData + getUnit*6.25/100.0); 
+		tempData = (~tempData + 1) & 0x7FF;
+		return (-((float)tempData * 0.0625));
 	}
+	return  ((float)tempData * 0.0625); 	
 }
 
 bool checkFrameData(uint32_t rawData)
@@ -114,12 +89,6 @@ void calibTempratueData(uint32_t *pTemp, uint32_t internalData)
 
 void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t type)
 {
-//   if (type == CELSIUS)
-//   {
-// 	*pAsphastTemp = ((*pAsphastTemp) - 32) / 1.8;
-// 	*pCombustionTemp = ((*pCombustionTemp) - 32) / 1.8;
-//   }
-//   else 
   if (type == FAHRENHEIT)
   {
     *pAsphastTemp    = (*pAsphastTemp) * 1.8 + 32;
@@ -134,10 +103,9 @@ void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, unitTempType_t 
 	convertUnitTemperature(pAsphastTemp, pCombustionTemp, type);
 }
 
-
 void sensorInit(void)
 {
 	HAL_GPIO_WritePin(SPI_CS1_GPIO_Port, SPI_CS1_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(SPI_CS2_GPIO_Port, SPI_CS2_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(SPI_SCK_GPIO_Port, SPI_SCK_Pin, GPIO_PIN_RESET);
 }

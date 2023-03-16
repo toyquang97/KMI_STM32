@@ -1,13 +1,14 @@
 #include "stateMachine.h"
 
 extern unitTempType_t gUintTemperatureSet;
-extern float gTargetTempAsphaltSet;
-extern float gLowTempEnableAsphaltSet;
-extern float gAlarmTempCombustionSet;
+extern uint32_t gTargetTempAsphaltSet;
+extern uint32_t gLowTempEnableAsphaltSet;
+extern uint32_t gAlarmTempCombustionSet;
 extern float gCpRuntime;
 extern float gBurnerRuntime;
 extern uint32_t gCPResetPassword;
 extern uint32_t gBurnerRuntimeResetPassword;
+
 void onScreenDisplay(void)
 {
     if (!gButton.button1)
@@ -54,6 +55,9 @@ void onScreenDisplay(void)
         break;
       case ASPHALT_SETPOINTS_PAGE:
         setAsphaltSetpoint();
+        break;
+      case COMBUSTION_SETPOINTS_PAGE:
+        setCombustionSetpoint();
         break;
       case SETTINGS_PAGE:
         kmi_change_display(BURNER_DELAY_SETTINGS_PAGE);
@@ -204,24 +208,46 @@ void changeUnitTemperature(void)
     HAL_Delay(200);
 }
 
-void clearCursorLCD(void)
-{
-    LCD_sendCmd(0x0C);
-}
-
 void setAsphaltSetpoint(void)
 {
-    static uint8_t index = 0;
-    
-	LCD_setCursor(1, 6);
-    LCD_sendCmd(0x0D);
+    static uint8_t indexX = 8;
+    static uint8_t indexY = 8;
+    setBlinkCursorLCD(1, 7);
+    indexX++;
+    if (indexX > 8)
+    {
+        indexY = 7;
+        LCD_setCursor(2, indexY);
+        LCD_sendCmd(0x0D);
+    }
+    if(indexY > 8)
+    {
+        indexX = 7;
+        LCD_setCursor(2, indexX);
+        LCD_sendCmd(0x0D);
+    }
+    HAL_Delay(300);
 }
 
+void setBlinkIndexUser(uint8_t index[][2], uint8_t count)
+{
+    setBlinkCursorLCD((*(*(index)+(count*2))),(*(*(index)+(count*2+1))));
+}
 
 void setCombustionSetpoint(void)
 {
-	LCD_setCursor(2, 7);
-    LCD_sendCmd(0x0D);
+    uint8_t index[3][2] = 
+    {
+        {1, 6},
+        {1, 7},
+        {1, 8},
+    };
+
+    static uint8_t count = 0;
+    setBlinkIndexUser(index, count);
+    count++;
+    if(count > 2) count = 0;
+    HAL_Delay(400);
 }
 
 void setBunerDelaySetpoint(void)
@@ -247,6 +273,35 @@ void reloadPageNeeded(void)
         break;
         case TEMP_UNIT_PAGE:
             kmi_redisplay_temp_unit();
+        break;
+        case CP_RUNTIMES_PAGE:
+            kmi_redisplay_temp_unit();
+        break;
+        case BURNER_RUNTIMES_PAGE:
+            kmi_redisplay_temp_unit();
+        break;
+    }
+}
+
+
+void inputUserType(void)
+{
+    switch (state1)
+    {
+    case ASPHALT_SETPOINTS_PAGE:
+        kmi_redisplay_home();
+        break;
+    case COMBUSTION_SETPOINTS_PAGE:
+        kmi_redisplay_voltage();
+        break;
+    case CP_RESET_AUTH_PAGE:
+        kmi_redisplay_temp_unit();
+        break;
+    case BURNER_RESET_AUTH_PAGE:
+        kmi_redisplay_temp_unit();
+        break;
+    case BURNER_DELAY_SETTINGS_PAGE:
+        kmi_redisplay_temp_unit();
         break;
     }
 }

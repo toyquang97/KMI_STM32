@@ -16,6 +16,9 @@ extern float gVoltageBattery;
 extern float gAsphaltTemp;
 extern float gCombustionTemp;
 extern unitTempType_t gUintTemperatureSet;
+extern uint32_t gAlarmTempCombustionSet;
+extern uint32_t gLowTempEnableAsphaltSet;
+extern uint32_t gTargetTempAsphaltSet;
 
 char versionControl[5] = "1.00";
 
@@ -44,18 +47,97 @@ void kmi_display_startup(void)
 	LCD_puts("#");
 }
 
-void kmi_display_alarm(void)
+void kmi_display_alarm_low_vol(void)
 {
-	state1 = ARLARM_PAGE;
+	state1 = LOW_VOL_ALARM_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 2);
-	LCD_puts("!!! CAUTION !!!");
+	LCD_puts("   !!! CAUTION !!!  ");
 	LCD_setCursor(1, 2);
-	LCD_puts("OVERTEMPERATURE");
-	LCD_setCursor(2, 2);
-	LCD_puts("INSPECT CHAMBER");
+	LCD_puts("    BATTERY LOW     ");
 	LCD_setCursor(3, 1);
-	LCD_puts("POWER OFF TO RESET");
+	LCD_puts("   CHARGE BATTERY   ");
+}
+
+void kmi_redisplay_alarm_low_vol(void)
+{
+	state1 = LOW_VOL_ALARM_PAGE;
+	char buff[20];
+	LCD_setCursor(2, 6);
+	sprintf(buff,"%.2f  VDC",gVoltageBattery);
+	LCD_puts(buff);
+}
+
+void kmi_display_alarm_asphalt_dis(void)
+{
+	state1 = ASPHALT_DIS_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts(" ASPH. THERMOCOUPLE ");
+	LCD_setCursor(2, 2);
+	LCD_puts("    DISCONNECTED    ");
+}
+
+void kmi_display_alarm_combustion_dis(void)
+{
+	state1 = COMBUSTION_DIS_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts(" COMB. THERMOCOUPLE ");
+	LCD_setCursor(2, 2);
+	LCD_puts("    DISCONNECTED    ");
+}
+
+void kmi_display_alarm_asphalt_shorted(void)
+{
+	state1 = ASPHALT_SHORT_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts(" ASPH. THERMOCOUPLE ");
+	LCD_setCursor(2, 2);
+	LCD_puts("       SHORTED      ");
+}
+
+void kmi_display_alarm_combustion_shorted(void)
+{
+	state1 = COMBUSTION_SHORT_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts(" ASPH. THERMOCOUPLE ");
+	LCD_setCursor(2, 2);
+	LCD_puts("       SHORTED      ");
+}
+
+void kmi_display_alarm_over_temp(void)
+{
+	state1 = OVERTEMP_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts("   OVERTEMPERATURE  ");
+	LCD_setCursor(2, 2);
+	LCD_puts("   INSPECT CHAMBER  ");
+	LCD_setCursor(3, 1);
+	LCD_puts(" POWER OFF TO RESET ");
+}
+
+void kmi_display_alarm_emer_stop(void)
+{
+	state1 = EMER_STOP_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 2);
+	LCD_puts("   !!! CAUTION !!!  ");
+	LCD_setCursor(1, 2);
+	LCD_puts("   EMERGENCY STOP   ");
 }
 
 void kmi_display_home(void)
@@ -288,20 +370,24 @@ void kmi_display_temp_setpoint (void)
 
 void kmi_display_asph_setpoint (void)
 {
+	char buff[10];
 	state1 = ASPHALT_SETPOINTS_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("ASPH. SETPOINT     ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("TARGET ### F       >");
+	LCD_puts("TARGET             >");
 	LCD_setCursor(2, 0);
-	LCD_puts("LO/ENA ### F  ESC-->");
+	LCD_puts("LO/ENA             >");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
-	LCD_setCursor(1, 7);
-	LCD_sendCmd(0x0D);
+    setBlinkCursorLCD(1,7);
 }
-
+	// sprintf(buff,"TARGET %3d %c       >", gTargetTempAsphaltSet, gUintTemperatureSet ? 'F' : 'C');
+	// LCD_puts(buff);
+	// LCD_setCursor(2, 0);
+	// sprintf(buff,"LO/ENA %3d %c  ESC-->", gLowTempEnableAsphaltSet, gUintTemperatureSet ? 'F' : 'C');
+	// LCD_puts(buff);
 void kmi_display_comb_setpoint (void)
 {
 	state1 = COMBUSTION_SETPOINTS_PAGE;
@@ -310,13 +396,12 @@ void kmi_display_comb_setpoint (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("COMBUSTION SET     ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("ALARM ### F        >");
+	LCD_puts("ALARM              >");
 	LCD_setCursor(2, 0);
 	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
-	LCD_setCursor(1, 6);
-	LCD_sendCmd(0x0D);
+    setBlinkCursorLCD(1,6);
 }
 
 void kmi_display_burner_delay_setting (void)
@@ -418,7 +503,7 @@ void kmi_display_burner (void)
 
 void kmi_display_asphalt (void)
 {
-	state1 =   ASPHALT_PAGE;
+	state1 = ASPHALT_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("####               ^");
@@ -432,9 +517,6 @@ void kmi_change_display(uint8_t userValue)
 	  {
 		case STARTUP_PAGE:
 			kmi_display_startup();
-			break;
-		case ARLARM_PAGE:
-			kmi_display_alarm();
 			break;
 		case HOME_PAGE:
 			kmi_display_home();

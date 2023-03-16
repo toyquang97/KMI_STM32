@@ -66,6 +66,10 @@ void LCD_setCursor(uint8_t row, uint8_t col);
 
 void LCD_scroll(uint8_t isScroll);
 
+void setBlinkCursorLCD(uint8_t row, uint8_t col);
+
+void clearCursorLCD(void);
+
 void initBriConLCD(void);
 
 void controlContrastLCD(uint8_t percent);

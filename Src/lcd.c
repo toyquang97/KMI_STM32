@@ -76,6 +76,17 @@ void controlContrastLCD(uint8_t percent)
     __HAL_TIM_SetCompare(&htim17,TIM_CHANNEL_1,percent);
 }
 
+void clearCursorLCD(void)
+{
+    LCD_sendCmd(0x0C);
+}
+
+void setBlinkCursorLCD(uint8_t row, uint8_t col)
+{
+    LCD_setCursor(row, col);
+    LCD_sendCmd(0x0D);
+}
+
 // Brightness control by transistor pull low, so pwm should invert
 void controlBrightLCD(uint8_t percent)
 {
@@ -90,6 +101,6 @@ void initBriConLCD(void)
     HAL_TIM_PWM_Start(&CONTRAST_PWM,TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&BRIGHTNESS_PWM,TIM_CHANNEL_2);
     __HAL_TIM_SetCompare(&CONTRAST_PWM,TIM_CHANNEL_1,95);
-    __HAL_TIM_SetCompare(&BRIGHTNESS_PWM,TIM_CHANNEL_2,60);
+    __HAL_TIM_SetCompare(&BRIGHTNESS_PWM,TIM_CHANNEL_2,90);
 
 }
