@@ -49,6 +49,7 @@ enum {
   COMBUSTION_SHORT_PAGE,
   OVERTEMP_PAGE,
   EMER_STOP_PAGE,
+  END_MENU,
 };
 /* Functions ------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -89,5 +90,7 @@ void kmi_display_alarm_asphalt_shorted(void);
 void kmi_display_alarm_combustion_shorted(void);
 void kmi_display_alarm_over_temp(void);
 void kmi_display_alarm_emer_stop(void);
+void kmi_redisplay_asph_setpoint (void);
+void kmi_redisplay_comb_setpoint (void);
 
 #endif /* INC_KMI_DISPLAY_H_ */

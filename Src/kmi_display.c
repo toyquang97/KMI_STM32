@@ -15,10 +15,7 @@ uint8_t state1;
 extern float gVoltageBattery;
 extern float gAsphaltTemp;
 extern float gCombustionTemp;
-extern unitTempType_t gUintTemperatureSet;
-extern uint32_t gAlarmTempCombustionSet;
-extern uint32_t gLowTempEnableAsphaltSet;
-extern uint32_t gTargetTempAsphaltSet;
+extern userInput_t gUserSaveDataTemp;
 
 char versionControl[5] = "1.00";
 
@@ -172,12 +169,12 @@ void kmi_redisplay_home(void)
 		sprintf(buffCombustion,"%.2f", gCombustionTemp);
 	}
 	
-	if (gUintTemperatureSet == CELSIUS)
+	if (gUserSaveDataTemp.temperatureUnit == CELSIUS)
 	{
 		strcat(buffAsphalt, "C ");
 		strcat(buffCombustion, "C");
 	}
-	else if (gUintTemperatureSet == FAHRENHEIT)
+	else if (gUserSaveDataTemp.temperatureUnit == FAHRENHEIT)
 	{
 		strcat(buffAsphalt, "F ");
 		strcat(buffCombustion, "F");
@@ -338,13 +335,13 @@ void kmi_display_temp_unit (void)
 void kmi_redisplay_temp_unit (void)
 {
 	state1 = TEMP_UNIT_PAGE;
-	char buff[20];
+	char buff[10];
 	LCD_setCursor(1, 0);
-	if (gUintTemperatureSet == CELSIUS)
+	if (gUserSaveDataTemp.temperatureUnit == CELSIUS)
 	{
 	  strcpy(buff, "deg C");
 	}
-	else if (gUintTemperatureSet == FAHRENHEIT)
+	else if (gUserSaveDataTemp.temperatureUnit == FAHRENHEIT)
 	{
 		strcpy(buff, "deg F");
 	}
@@ -368,9 +365,20 @@ void kmi_display_temp_setpoint (void)
 	LCD_puts("             BACK-->");
 }
 
-void kmi_display_asph_setpoint (void)
+void kmi_redisplay_asph_setpoint (void)
 {
 	char buff[10];
+	state1 = ASPHALT_SETPOINTS_PAGE;
+	LCD_setCursor(1, 7);
+	sprintf(buff,"%3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
+	LCD_setCursor(2, 7);
+	sprintf(buff,"%3d %c", gUserSaveDataTemp.lowEnableAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
+}
+
+void kmi_display_asph_setpoint (void)
+{
 	state1 = ASPHALT_SETPOINTS_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
@@ -378,16 +386,12 @@ void kmi_display_asph_setpoint (void)
 	LCD_setCursor(1, 0);
 	LCD_puts("TARGET             >");
 	LCD_setCursor(2, 0);
-	LCD_puts("LO/ENA             >");
+	LCD_puts("LO/ENA        ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
     setBlinkCursorLCD(1,7);
 }
-	// sprintf(buff,"TARGET %3d %c       >", gTargetTempAsphaltSet, gUintTemperatureSet ? 'F' : 'C');
-	// LCD_puts(buff);
-	// LCD_setCursor(2, 0);
-	// sprintf(buff,"LO/ENA %3d %c  ESC-->", gLowTempEnableAsphaltSet, gUintTemperatureSet ? 'F' : 'C');
-	// LCD_puts(buff);
+
 void kmi_display_comb_setpoint (void)
 {
 	state1 = COMBUSTION_SETPOINTS_PAGE;
@@ -402,6 +406,15 @@ void kmi_display_comb_setpoint (void)
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
     setBlinkCursorLCD(1,6);
+}
+
+void kmi_redisplay_comb_setpoint (void)
+{
+	char buff[10];
+	state1 = COMBUSTION_SETPOINTS_PAGE;
+	LCD_setCursor(1, 6);
+	sprintf(buff,"%3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
 }
 
 void kmi_display_burner_delay_setting (void)
@@ -589,13 +602,3 @@ void kmi_change_display(uint8_t userValue)
 	  }
 }
 
-void kmi_blinking_cursor (uint8_t userValue)
-{
-
-
-	
-}
-
-/*
- * EOF
- * */

@@ -76,9 +76,10 @@ void controlContrastLCD(uint8_t percent)
     __HAL_TIM_SetCompare(&htim17,TIM_CHANNEL_1,percent);
 }
 
-void clearCursorLCD(void)
+void clearCursorLCD(uint8_t *pIndex)
 {
     LCD_sendCmd(0x0C);
+    *pIndex = 1;
 }
 
 void setBlinkCursorLCD(uint8_t row, uint8_t col)

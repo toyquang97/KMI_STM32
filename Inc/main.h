@@ -32,6 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdbool.h"
 #define KEEP_DEBUG 0
 /* USER CODE END Includes */
 
@@ -120,6 +121,29 @@ void Error_Handler(void);
 #define CONTRAST_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
+typedef struct _SET_POINT_
+{
+  uint16_t targetTempAsphaltSet;
+  uint16_t lowEnableAsphaltSet;
+  uint16_t overTempCombustionAlarm;
+  uint16_t burnerDelaySet;
+  uint16_t cpRuntime;
+  uint16_t burnerRuntime;
+  bool temperatureUnit;
+  uint16_t cpRTResetPassword;
+  uint16_t burnerRTResetPassword;
+}userInput_t;
+
+typedef struct timer
+{
+	uint8_t Time_5ms : 1;	// 10ms 
+	uint8_t Time_10ms : 1;	// 10ms 
+	uint8_t Time_50ms : 1;	// 50ms 
+	uint8_t Time_100ms : 1; // 100ms 
+	uint8_t Time_500ms : 1; // 500ms 
+} tickTimer;
+
+#define USER_WRITE_SIZE (sizeof(userInput_t) - 4)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -30,6 +30,7 @@
 #include "stdbool.h"
 #include "stateMachine.h"
 #include "string.h"
+#include "flash.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -78,22 +79,12 @@ bool gTriggerAlarm = 0;
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
-bool gFlagReadInput5ms = 0;
-bool gFlagReadInput10ms = 0;
-bool gFlagReadInput50ms = 0;
-bool gFlagReadInput100ms = 0;
-bool gFlagReadInput500ms = 0;
-uint32_t gTargetTempAsphaltSet = 750;
-uint32_t gLowTempEnableAsphaltSet = 730;
-uint32_t gAlarmTempCombustionSet = 800;
 float gCpRuntime = 0;
 float gBurnerRuntime = 0;
-uint32_t gCPResetPassword = 0;
-uint32_t gBurnerRuntimeResetPassword = 0;
-unitTempType_t gUintTemperatureSet = FAHRENHEIT;
 buttonCall_t gButton;
-
-
+userInput_t gUserSetInput;
+userInput_t gUserSaveDataTemp;
+tickTimer gFlagTimer;
 /* USER CODE END 0 */
 
 /**
@@ -130,15 +121,16 @@ int main(void)
   MX_TIM6_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  memset(&gButton, 1, 4);
   HAL_TIM_Base_Start_IT(&htim6);
-	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUintTemperatureSet);
+	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput);
   HAL_Delay(100);
   sensorInit();
   kmi_display_init();
   kmi_change_display(STARTUP_PAGE);
   HAL_Delay(1000);
   kmi_change_display(HOME_PAGE);
-
+  userDataInit(&gUserSetInput, &gUserSaveDataTemp);
 
   /* USER CODE END 2 */
 
@@ -151,36 +143,35 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    if(gFlagReadInput5ms)
+    if(gFlagTimer.Time_5ms)
     {
       readBatteryVoltage(hadc, &gVoltageBattery);
-      readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUintTemperatureSet);
-      gFlagReadInput5ms = 0;
+      readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput);
+      gFlagTimer.Time_5ms = 0;
     }
-    if(gFlagReadInput10ms)
+    if(gFlagTimer.Time_10ms)
+    {
+      onScreenDisplay();
+      gFlagTimer.Time_10ms = 0;
+    }
+    if(gFlagTimer.Time_50ms)
     {
       readButtonWorking(&gButton);
-      onScreenDisplay();
-      gFlagReadInput10ms = 0;
-    }
-    if(gFlagReadInput50ms)
-    {
       burnerWorkingCondition(gButton);
 #if KEEP_DEBUG
       memset(&gButton, 1, 4);
 #endif
-      gFlagReadInput50ms = 0;
+      gFlagTimer.Time_50ms = 0;
     }
-    if(gFlagReadInput100ms)
+    if(gFlagTimer.Time_100ms)
     {
       reloadPageNeeded();
-      gFlagReadInput100ms = 0;
+      gFlagTimer.Time_100ms = 0;
     }
-    if(gFlagReadInput500ms)
+    if(gFlagTimer.Time_500ms)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
-      gFlagReadInput500ms = 0;
-
+      gFlagTimer.Time_500ms = 0;
     }
 		
   }
