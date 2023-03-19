@@ -1,9 +1,6 @@
 #include "stateMachine.h"
 
-extern userInput_t gUserSetInput;
-extern userInput_t gUserSaveDataTemp;
-extern userInput_t userDefaultValue;
-uint32_t gPasswordReset = 11111;
+uint32_t gPasswordReset  = 11111;
 uint32_t gFactoryResetPW = 61297;
 uint8_t index = 0;
 
@@ -45,6 +42,9 @@ void onScreenDisplay(void)
         break;
       case BURNER_DELAY_SETTINGS_PAGE:
         increaseValueSetpoint(index, (uint16_t *)&gUserSaveDataTemp.burnerDelaySet);
+        break;
+      case VOLTAGE_SETPOINT_PAGE:
+        getLowVoltageSetpoint(index, (uint16_t *)&gUserSaveDataTemp.lowVoltageCheck);
         break;
       case CP_RESET_AUTH_PAGE:
       case BURNER_RESET_AUTH_PAGE:
@@ -98,6 +98,15 @@ void onScreenDisplay(void)
           index = 0;
         }
         setBunerDelaySetpoint(index);
+        break;
+      case VOLTAGE_SETPOINT_PAGE:
+        index++;
+        if (index > 3)
+        {
+          index = 0;
+        }
+        setLowVoltageSetpoint(index);
+        break;
       case BURNER_RESET_AUTH_PAGE:
       case CP_RESET_AUTH_PAGE:
         index++;
@@ -106,6 +115,7 @@ void onScreenDisplay(void)
           index = 0;
         }
         setPasswordReset(index);
+        break;
       default:
         break;
       }
@@ -120,6 +130,9 @@ void onScreenDisplay(void)
         break;
       case MENU_PAGE:
         kmi_change_display(HOME_PAGE);
+        break;
+      case VOLTAGE_PAGE:
+        kmi_change_display(VOLTAGE_SETPOINT_PAGE);
         break;
       case SETTINGS_PAGE:
         kmi_change_display(RUNTIMES_PAGE);
@@ -170,7 +183,11 @@ void onScreenDisplay(void)
       case BURNER_DELAY_SETTINGS_PAGE:
         isConfirmESC(&index);
         kmi_change_display(SETTINGS_PAGE);
-        break;        
+        break;
+      case VOLTAGE_SETPOINT_PAGE:
+        isConfirmESC(&index);
+        kmi_change_display(VOLTAGE_PAGE);
+        break;          
       default:
         break;
       }
@@ -235,6 +252,10 @@ void onScreenDisplay(void)
         isConfirmOk(&index);
         kmi_change_display(BURNER_RUNTIMES_PAGE);
         break;
+      case VOLTAGE_SETPOINT_PAGE:
+        isConfirmOk(&index);
+        kmi_change_display(VOLTAGE_PAGE);
+        break;
       default:
         break;
       }
@@ -276,6 +297,19 @@ void setAsphaltSetpoint(uint8_t index)
     {2, 7},
     {2, 8},
     {2, 9},
+  };
+  setBlinkIndexUser(pIndex, index);
+  HAL_Delay(DELAY_TIME_USER);
+}
+
+void setLowVoltageSetpoint(uint8_t index)
+{
+  uint8_t pIndex[4][2] =
+  {
+    {2, 0},
+    {2, 1},
+    {2, 3},
+    {2, 4},
   };
   setBlinkIndexUser(pIndex, index);
   HAL_Delay(DELAY_TIME_USER);
@@ -332,6 +366,40 @@ void increaseValueSetpoint(uint8_t index, uint16_t *pGetValue)
   HAL_Delay(DELAY_TIME_USER);
 }
 
+void getLowVoltageSetpoint(uint8_t index, uint16_t *pGetValue)
+{
+   uint8_t temp[5];
+  if(state1 == VOLTAGE_SETPOINT_PAGE)
+  {
+      temp[0] = (*pGetValue / 1000);
+      temp[1] = (*pGetValue / 100) % 10;
+      temp[2] = (*pGetValue / 10)  % 10;
+      temp[3] = (*pGetValue /1)    % 10;
+      for (int i = 0; i < 4; i++)
+      {
+        if (index == i)
+        {
+          temp[i]++;
+          if (temp[0] > 1) // not allow > 13V
+          {
+            temp[0] = 0;
+          }
+          if (temp[1] > 3)
+          {
+            temp[1] = 0;
+          }
+          if (temp[i] > 9)
+          {
+            temp[i] = 0;
+          } 
+        }
+      }
+    *pGetValue = (temp[0]*1000 + temp[1]*100 + temp[2]*10 + temp[3]);
+  }
+  readLoadInputUserType(index);
+  HAL_Delay(DELAY_TIME_USER);
+}
+
 void getPasswordReset(uint8_t index, uint32_t *pGetValue)
 {
   uint8_t temp[5];
@@ -356,9 +424,8 @@ void getPasswordReset(uint8_t index, uint32_t *pGetValue)
 
     *pGetValue = (temp[0]*10000 + temp[1]*1000 + temp[2]*100 + temp[3]*10 + temp[4]);
   }
-  
-  readLoadInputUserType(index);
 
+  readLoadInputUserType(index);
   HAL_Delay(DELAY_TIME_USER);
 }
 
@@ -434,14 +501,6 @@ void reloadPageNeeded(void)
   }
 }
 
-void delaySoftware(void)
-{
-  for (int i = 0; i < 500000; i++)
-  {
-    ;
-  }
-}
-
 void readLoadInputUserType(uint8_t index)
 {
   setClrCurWithoutReset();
@@ -457,19 +516,19 @@ void readLoadInputUserType(uint8_t index)
       break;
   case CP_RESET_AUTH_PAGE:
       kmi_redisplay_cp_reset_auth(index);
-      delaySoftware();
-      kmi_display_cover_reset_pw();
       setPasswordReset(index);
       break;
   case BURNER_RESET_AUTH_PAGE:
       kmi_redisplay_burner_reset_auth(index);
-      delaySoftware();
-      kmi_display_cover_reset_pw();
       setPasswordReset(index);
       break;
   case BURNER_DELAY_SETTINGS_PAGE:
       kmi_redisplay_burner_delay_setting();
       setBunerDelaySetpoint(index);
+      break;
+  case VOLTAGE_SETPOINT_PAGE:
+      kmi_redisplay_voltage_setpoint();
+      setLowVoltageSetpoint(index);
       break;
   }
 }
@@ -482,6 +541,7 @@ void isConfirmOk(uint8_t *pIndex)
     memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
     userInputWriteFlash(gUserSetInput);
     clearCursorLCD(pIndex);
+    gUserSaveDataTemp.resetPassword = 0;
     return;
   }
 
@@ -508,4 +568,49 @@ void isConfirmESC(uint8_t *pIndex)
   memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
   clearCursorLCD(pIndex);
   gUserSaveDataTemp.resetPassword = 0;
+}
+
+void killSystemWorking(void)
+{
+  HAL_TIM_Base_Stop_IT(&htim15);
+  HAL_TIM_Base_Stop_IT(&htim6);
+  while (1)
+    ;
+}
+
+void checkAlarmSystem(void)
+{
+  if (gCombustionTemp > gUserSetInput.overTempCombustionAlarm)
+  {
+    kmi_display_alarm_over_temp();
+    killSystemWorking();
+  }
+  else if (gButton.eStopEmergency)
+  {
+    kmi_display_alarm_emer_stop();
+  }
+  else if (asphErrorTher == NO_CONNECT)
+  {
+    kmi_display_alarm_asphalt_dis();
+  }
+  else if (asphErrorTher == SHORT_GND || asphErrorTher == SHORT_VCC)
+  {
+    kmi_display_alarm_asphalt_shorted();
+  }
+  else if (combErrorTher == NO_CONNECT)
+  {
+    kmi_display_alarm_combustion_dis();
+  }
+  else if (combErrorTher == SHORT_GND || combErrorTher == SHORT_VCC)
+  {
+    kmi_display_alarm_combustion_shorted();
+  }
+  // else if (gVoltageBattery < gUserSetInput.lowVoltageCheck)
+  // {
+  //   kmi_display_alarm_low_vol();
+  //   kmi_redisplay_alarm_low_vol();
+  // }
+
+
+
 }

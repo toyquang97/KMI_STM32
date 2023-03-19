@@ -2,7 +2,10 @@
 #include "stdbool.h"
 
 extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim15;
 uint8_t count = 0;
+uint32_t count1 = 0;
+uint32_t countMins = 0;
 extern tickTimer gFlagTimer;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -25,6 +28,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       if ((count % 100) == 0)
       {
         gFlagTimer.Time_500ms = 1;
+      }
+    }
+  }
+  else if (htim->Instance == htim15.Instance) // count every 1s
+  {
+    count1++;
+    gFlagTimer.Time_1000ms = 1;
+    if ((count1 % 2) == 0)
+    {
+      gFlagTimer.Time_2s = 1;
+      if ((count1 % 60) == 0)
+      {
+        gFlagTimer.Time_1m = 1;
+        count1 = 0;
+        countMins++;
+        if(countMins % 60)
+        {
+          gFlagTimer.Time_1hr = 1;
+        }
       }
     }
   }

@@ -10,7 +10,6 @@
 
 #include "kmi_display.h"
 
-
 uint8_t state1;
 extern float gVoltageBattery;
 extern float gAsphaltTemp;
@@ -47,12 +46,11 @@ void kmi_display_startup(void)
 void kmi_display_alarm_low_vol(void)
 {
 	state1 = LOW_VOL_ALARM_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts("    BATTERY LOW     ");
-	LCD_setCursor(3, 1);
+	LCD_setCursor(3, 0);
 	LCD_puts("   CHARGE BATTERY   ");
 }
 
@@ -68,72 +66,66 @@ void kmi_redisplay_alarm_low_vol(void)
 void kmi_display_alarm_asphalt_dis(void)
 {
 	state1 = ASPHALT_DIS_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts(" ASPH. THERMOCOUPLE ");
-	LCD_setCursor(2, 2);
+	LCD_setCursor(2, 0);
 	LCD_puts("    DISCONNECTED    ");
 }
 
 void kmi_display_alarm_combustion_dis(void)
 {
 	state1 = COMBUSTION_DIS_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts(" COMB. THERMOCOUPLE ");
-	LCD_setCursor(2, 2);
+	LCD_setCursor(2, 0);
 	LCD_puts("    DISCONNECTED    ");
 }
 
 void kmi_display_alarm_asphalt_shorted(void)
 {
 	state1 = ASPHALT_SHORT_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts(" ASPH. THERMOCOUPLE ");
-	LCD_setCursor(2, 2);
+	LCD_setCursor(2, 0);
 	LCD_puts("       SHORTED      ");
 }
 
 void kmi_display_alarm_combustion_shorted(void)
 {
 	state1 = COMBUSTION_SHORT_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts(" ASPH. THERMOCOUPLE ");
-	LCD_setCursor(2, 2);
+	LCD_setCursor(2, 0);
 	LCD_puts("       SHORTED      ");
 }
 
 void kmi_display_alarm_over_temp(void)
 {
 	state1 = OVERTEMP_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts("   OVERTEMPERATURE  ");
-	LCD_setCursor(2, 2);
+	LCD_setCursor(2, 0);
 	LCD_puts("   INSPECT CHAMBER  ");
-	LCD_setCursor(3, 1);
+	LCD_setCursor(3, 0);
 	LCD_puts(" POWER OFF TO RESET ");
 }
 
 void kmi_display_alarm_emer_stop(void)
 {
 	state1 = EMER_STOP_PAGE;
-	LCD_clear();
-	LCD_setCursor(0, 2);
+	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
-	LCD_setCursor(1, 2);
+	LCD_setCursor(1, 0);
 	LCD_puts("   EMERGENCY STOP   ");
 }
 
@@ -217,8 +209,38 @@ void kmi_display_voltage(void)
 	LCD_setCursor(1, 0);
 	sprintf(buff,"%.2f  VDC",gVoltageBattery);
 	LCD_puts(buff);
+	LCD_setCursor(2, 0);
+	LCD_puts("   ALARM SETPOINT-->");
 	LCD_setCursor(3, 13);
 	LCD_puts("MENU-->");
+}
+
+void kmi_display_voltage_setpoint(void)
+{
+	char buff[20];
+	state1 = VOLTAGE_SETPOINT_PAGE;
+	LCD_clear();
+	LCD_setCursor(0, 0);
+	LCD_puts("LOW VOLTAGE");
+	LCD_setCursor(1, 0);
+	LCD_puts("SET POINT");
+	LCD_setCursor(2, 0);
+	LCD_puts("              ESC-->");
+	LCD_setCursor(2, 0);
+	sprintf(buff,"%2.2d.%2.2d V", (gUserSaveDataTemp.lowVoltageCheck / 100),(gUserSaveDataTemp.lowVoltageCheck % 100));
+	LCD_puts(buff);
+	LCD_setCursor(3, 15);
+	LCD_puts("OK-->");
+    setBlinkCursorLCD(2,0);
+}
+
+void kmi_redisplay_voltage_setpoint(void)
+{
+	char buff[20];
+	state1 = VOLTAGE_SETPOINT_PAGE;
+	LCD_setCursor(2, 0);
+	sprintf(buff,"%2.2d.%2.2d V", (gUserSaveDataTemp.lowVoltageCheck / 100),(gUserSaveDataTemp.lowVoltageCheck % 100));
+	LCD_puts(buff);
 }
 
 void kmi_display_analog(void)
@@ -584,12 +606,13 @@ void kmi_display_asphalt (void)
 	LCD_puts("             BACK-->");
 }
 
-void kmi_display_cover_reset_pw(void)
+void kmi_display_cover_reset_pw(uint8_t index)
 {
 	if (state1 == BURNER_RESET_AUTH_PAGE || state1 == CP_RESET_AUTH_PAGE)
 	{
 		LCD_setCursor(2, 0);
 		LCD_puts("#####");
+		setBlinkCursorLCD(2,index);
 	}
 }
 
@@ -665,9 +688,11 @@ void kmi_change_display(uint8_t userValue)
 			break;          
         case BURNER_RESET_AUTH_PAGE:
 			kmi_display_burner_reset_auth();
-			break;          
+			break;
+        case VOLTAGE_SETPOINT_PAGE:
+			kmi_display_voltage_setpoint();
+			break;  
 	 default:
     	break;
 	  }
 }
-

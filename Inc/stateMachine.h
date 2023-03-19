@@ -12,13 +12,17 @@
 
 extern uint8_t state1;
 extern buttonCall_t gButton;
+extern float gAsphaltTemp;
+extern float gCombustionTemp;
+extern float gVoltageBattery;
+extern userInput_t gUserSetInput;
+extern userInput_t gUserSaveDataTemp;
+extern userInput_t userDefaultValue;
+extern errorType_t asphErrorTher;
+extern errorType_t combErrorTher;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim15;
 
-// uint8_t arrBurn[3][2] =
-// {
-//     {1, 0},
-//     {1, 1},
-//     {1, 2},
-// };
 #define DELAY_TIME_USER 250
 
 void onScreenDisplay(void);
@@ -37,4 +41,8 @@ void readLoadInputUserType(uint8_t index);
 void setPoisitionBlinkCursor(uint8_t index[][2] ,uint8_t *pIndex, uint8_t size);
 void getPasswordReset(uint8_t index, uint32_t *pGetValue);
 void isResetRunTime(void);
+void killSystemWorking(void);
+void checkAlarmSystem(void);
+void setLowVoltageSetpoint(uint8_t index);
+void getLowVoltageSetpoint(uint8_t index, uint16_t *pGetValue);
 #endif

@@ -68,11 +68,11 @@ typedef enum
 // ------------------------- Functions  ----------------------
 uint32_t readThermocoupleData(chamberType_t type);
 float getInternalTempratureData(chamberType_t type);
-float getTemperatureData(chamberType_t type);
+float getTemperatureData(chamberType_t type, errorType_t *pError);
 void sensorInit(void);
 bool checkFrameData(uint32_t rawData);
-errorType_t getErrorType(uint8_t rawData);
-void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type);
+errorType_t getErrorType(uint32_t rawData);
+void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type, errorType_t *pErrAsphalt, errorType_t *pErrCombustion);
 void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, userInput_t type);
 void convertDataRunTime(userInput_t *pData);
 #endif

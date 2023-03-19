@@ -24,8 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "kmi_display.h"
-#include"MAX31855.h"
-#include"adc.h"
+#include "MAX31855.h"
+#include "adc.h"
 #include "button.h"
 #include "stdbool.h"
 #include "stateMachine.h"
@@ -52,7 +52,9 @@ ADC_HandleTypeDef hadc;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim17;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -63,9 +65,10 @@ UART_HandleTypeDef huart1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC_Init(void);
-static void MX_TIM17_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM15_Init(void);
+static void MX_TIM17_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -79,11 +82,19 @@ bool gTriggerAlarm = 0;
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
+
 buttonCall_t gButton;
+
 userInput_t gUserSetInput;
 userInput_t gUserSaveDataTemp;
-userInput_t userDefaultValue = {730,750,800,0,0,0,1,0};
+userInput_t userDefaultValue = {730,750,800,0,0,0,1105,1,0};
+
 tickTimer gFlagTimer;
+
+errorType_t asphErrorTher = NONE;
+errorType_t combErrorTher = NONE;
+
+
 /* USER CODE END 0 */
 
 /**
@@ -111,18 +122,19 @@ int main(void)
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC_Init();
-  MX_TIM17_Init();
   MX_TIM3_Init();
   MX_TIM6_Init();
+  MX_TIM15_Init();
+  MX_TIM17_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   memset(&gButton, 1, 4);
   HAL_TIM_Base_Start_IT(&htim6);
-	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput);
+  HAL_TIM_Base_Start_IT(&htim15);
+	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput, &asphErrorTher, &combErrorTher);
   HAL_Delay(100);
   sensorInit();
   kmi_display_init();
@@ -145,11 +157,12 @@ int main(void)
     if(gFlagTimer.Time_5ms)
     {
       readBatteryVoltage(hadc, &gVoltageBattery);
-      readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput);
+      readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput, &asphErrorTher, &combErrorTher);
       gFlagTimer.Time_5ms = 0;
     }
     if(gFlagTimer.Time_10ms)
     {
+      checkAlarmSystem();
       gFlagTimer.Time_10ms = 0;
     }
     if(gFlagTimer.Time_50ms)
@@ -170,11 +183,18 @@ int main(void)
     if(gFlagTimer.Time_500ms)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
-     //kmi_display_cover_reset_pw();
-
       gFlagTimer.Time_500ms = 0;
     }
-		
+    if(gFlagTimer.Time_2s)
+    {
+      HAL_GPIO_TogglePin(LED2_GPIO_Port,LED2_Pin);
+      kmi_display_cover_reset_pw(index);
+      gFlagTimer.Time_2s = 0;
+    }
+    if(gFlagTimer.Time_1hr)
+    {
+      gFlagTimer.Time_1hr = 0;
+    }
   }
   /* USER CODE END 3 */
 }
@@ -363,6 +383,52 @@ static void MX_TIM6_Init(void)
 }
 
 /**
+  * @brief TIM15 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM15_Init(void)
+{
+
+  /* USER CODE BEGIN TIM15_Init 0 */
+
+  /* USER CODE END TIM15_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM15_Init 1 */
+
+  /* USER CODE END TIM15_Init 1 */
+  htim15.Instance = TIM15;
+  htim15.Init.Prescaler = 399;
+  htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim15.Init.Period = 19999;
+  htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim15.Init.RepetitionCounter = 0;
+  htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim15) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim15, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM15_Init 2 */
+
+  /* USER CODE END TIM15_Init 2 */
+
+}
+
+/**
   * @brief TIM17 Initialization Function
   * @param None
   * @retval None
@@ -476,7 +542,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LD2_Pin 
+  HAL_GPIO_WritePin(GPIOA, BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LED2_Pin 
                           |D6_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -488,6 +554,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, D5_Pin|D4_Pin|D3_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : BT2_Pin BT1_Pin */
   GPIO_InitStruct.Pin = BT2_Pin|BT1_Pin;
@@ -501,9 +570,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BUZZER_Pin RL_CR2_Pin LED1_Pin LD2_Pin 
+  /*Configure GPIO pins : BUZZER_Pin RL_CR2_Pin LED1_Pin LED2_Pin 
                            D6_Pin */
-  GPIO_InitStruct.Pin = BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LD2_Pin 
+  GPIO_InitStruct.Pin = BUZZER_Pin|RL_CR2_Pin|LED1_Pin|LED2_Pin 
                           |D6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -546,8 +615,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : D2_Pin */
   GPIO_InitStruct.Pin = D2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(D2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : D1_Pin D0_Pin EN_Pin RW_Pin 

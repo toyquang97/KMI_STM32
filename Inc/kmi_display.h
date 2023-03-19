@@ -24,6 +24,7 @@ enum {
   HOME_PAGE,
   MENU_PAGE,
   VOLTAGE_PAGE,
+  VOLTAGE_SETPOINT_PAGE,
   IO_DIAGNOSTICS_1_PAGE,
   IO_DIAGNOSTICS_2_PAGE,
   IO_DIAGNOSTICS_3_PAGE,
@@ -96,7 +97,10 @@ void kmi_redisplay_comb_setpoint (void);
 void kmi_redisplay_burner_delay_setting (void);
 void kmi_redisplay_burner_reset_auth (uint8_t index);
 void kmi_redisplay_cp_reset_auth (uint8_t index);
-void kmi_display_cover_reset_pw(void);
+void kmi_display_cover_reset_pw(uint8_t index);
 void kmi_redisplay_cp_runtime(void);
 void kmi_redisplay_burner_runtime(void);
+void kmi_redisplay_voltage_setpoint(void);
+void kmi_display_voltage_setpoint(void);
+
 #endif /* INC_KMI_DISPLAY_H_ */

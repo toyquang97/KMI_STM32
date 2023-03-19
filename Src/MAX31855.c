@@ -38,7 +38,7 @@ uint32_t readThermocoupleData(chamberType_t type)
 	return rawdata; 	
 }
 
-errorType_t getErrorType(uint8_t rawData)
+errorType_t getErrorType(uint32_t rawData)
 {
 	if(rawData & 0x01) 	return NO_CONNECT;
 	if(rawData & 0x02) 	return SHORT_GND;
@@ -46,12 +46,13 @@ errorType_t getErrorType(uint8_t rawData)
 	return NONE;
 }
 
-float getTemperatureData(chamberType_t type)
+float getTemperatureData(chamberType_t type, errorType_t *pError)
 {
 	uint32_t tempData = 0;
 	uint32_t rawData = 0;
 
 	rawData = readThermocoupleData(type);
+	*pError = getErrorType(rawData);
 	tempData = (rawData >> 18) & 0x1FFF; // get data bit 18 -> bit 30
 	if (rawData >> 31) // get sign
 	{
@@ -113,10 +114,10 @@ void convertDataRunTime(userInput_t *pData)
   
 }
 
-void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type)
+void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type, errorType_t *pErrAsphalt, errorType_t *pErrCombustion)
 {
-	*pAsphastTemp 	 = getTemperatureData(ASPHALT);
-	*pCombustionTemp = getTemperatureData(COMBUSTION);
+	*pAsphastTemp 	 = getTemperatureData(ASPHALT, pErrAsphalt);
+	*pCombustionTemp = getTemperatureData(COMBUSTION, pErrCombustion);
 	convertUnitTemperature(pAsphastTemp, pCombustionTemp, type);
 }
 

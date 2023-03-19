@@ -57,7 +57,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+extern uint8_t index;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -79,8 +79,8 @@ void Error_Handler(void);
 #define RL_CR2_GPIO_Port GPIOA
 #define LED1_Pin GPIO_PIN_5
 #define LED1_GPIO_Port GPIOA
-#define LD2_Pin GPIO_PIN_6
-#define LD2_GPIO_Port GPIOA
+#define LED2_Pin GPIO_PIN_6
+#define LED2_GPIO_Port GPIOA
 #define SPI_CS1_Pin GPIO_PIN_10
 #define SPI_CS1_GPIO_Port GPIOB
 #define SPI_CS2_Pin GPIO_PIN_11
@@ -129,8 +129,9 @@ typedef struct _SET_POINT_
   uint16_t burnerDelaySet;
   uint16_t cpRuntime;
   uint16_t burnerRuntime;
+  uint16_t lowVoltageCheck;
   bool temperatureUnit;
-  volatile uint32_t resetPassword;
+  uint32_t resetPassword;
 }userInput_t;
 
 typedef struct timer
@@ -140,6 +141,10 @@ typedef struct timer
 	uint8_t Time_50ms : 1;	// 50ms 
 	uint8_t Time_100ms : 1; // 100ms 
 	uint8_t Time_500ms : 1; // 500ms 
+	uint8_t Time_1000ms : 1; // 1000ms 
+	uint8_t Time_2s : 1; // 2s 
+	uint8_t Time_1m : 1; // 1min
+	uint8_t Time_1hr : 1; // 1hr 
 } tickTimer;
 
 #define USER_WRITE_SIZE (sizeof(userInput_t) - 4)
