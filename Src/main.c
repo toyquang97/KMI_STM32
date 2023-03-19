@@ -77,8 +77,6 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint8_t error = 0;
-bool gTriggerAlarm = 0;
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
@@ -87,9 +85,11 @@ buttonCall_t gButton;
 
 userInput_t gUserSetInput;
 userInput_t gUserSaveDataTemp;
-userInput_t userDefaultValue = {730,750,800,0,0,0,1105,1,0};
+userInput_t userDefaultValue = {730,750,800,0,0,0,1005,1,0};
 
 tickTimer gFlagTimer;
+
+alarmType_t gAlarmSys;
 
 errorType_t asphErrorTher = NONE;
 errorType_t combErrorTher = NONE;
@@ -132,6 +132,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   memset(&gButton, 1, 4);
+  memset(&gAlarmSys, 1, sizeof(alarmType_t));
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim15);
 	readBothSensor(&gAsphaltTemp, &gCombustionTemp, gUserSetInput, &asphErrorTher, &combErrorTher);
@@ -191,8 +192,11 @@ int main(void)
       kmi_display_cover_reset_pw(index);
       gFlagTimer.Time_2s = 0;
     }
-    if(gFlagTimer.Time_1hr)
+    if(gFlagTimer.Time_1hr) // cpRuntime count evey 1 hour, and save to flash
     {
+      gUserSaveDataTemp.cpRuntime++;
+      memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
+      userInputWriteFlash(gUserSetInput);
       gFlagTimer.Time_1hr = 0;
     }
   }

@@ -72,6 +72,8 @@ void kmi_display_alarm_asphalt_dis(void)
 	LCD_puts(" ASPH. THERMOCOUPLE ");
 	LCD_setCursor(2, 0);
 	LCD_puts("    DISCONNECTED    ");
+	LCD_setCursor(3, 0);
+	LCD_puts("                    ");
 }
 
 void kmi_display_alarm_combustion_dis(void)
@@ -83,6 +85,8 @@ void kmi_display_alarm_combustion_dis(void)
 	LCD_puts(" COMB. THERMOCOUPLE ");
 	LCD_setCursor(2, 0);
 	LCD_puts("    DISCONNECTED    ");
+	LCD_setCursor(3, 0);
+	LCD_puts("                    ");
 }
 
 void kmi_display_alarm_asphalt_shorted(void)
@@ -94,6 +98,8 @@ void kmi_display_alarm_asphalt_shorted(void)
 	LCD_puts(" ASPH. THERMOCOUPLE ");
 	LCD_setCursor(2, 0);
 	LCD_puts("       SHORTED      ");
+	LCD_setCursor(3, 0);
+	LCD_puts("                    ");
 }
 
 void kmi_display_alarm_combustion_shorted(void)
@@ -105,6 +111,8 @@ void kmi_display_alarm_combustion_shorted(void)
 	LCD_puts(" ASPH. THERMOCOUPLE ");
 	LCD_setCursor(2, 0);
 	LCD_puts("       SHORTED      ");
+	LCD_setCursor(3, 0);
+	LCD_puts("                    ");
 }
 
 void kmi_display_alarm_over_temp(void)
@@ -127,6 +135,10 @@ void kmi_display_alarm_emer_stop(void)
 	LCD_puts("   !!! CAUTION !!!  ");
 	LCD_setCursor(1, 0);
 	LCD_puts("   EMERGENCY STOP   ");
+	LCD_setCursor(2, 0);
+	LCD_puts("                    ");
+	LCD_setCursor(3, 0);
+	LCD_puts("                    ");
 }
 
 void kmi_display_home(void)

@@ -12,6 +12,7 @@
 
 extern uint8_t state1;
 extern buttonCall_t gButton;
+extern alarmType_t gAlarmSys;
 extern float gAsphaltTemp;
 extern float gCombustionTemp;
 extern float gVoltageBattery;

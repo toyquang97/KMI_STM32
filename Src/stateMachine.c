@@ -585,32 +585,99 @@ void checkAlarmSystem(void)
     kmi_display_alarm_over_temp();
     killSystemWorking();
   }
-  else if (gButton.eStopEmergency)
+//////////////////////////////////////////////////////////////////////////////////
+  if (gButton.eStopEmergency)
   {
+    gAlarmSys.emerStop = 0;
     kmi_display_alarm_emer_stop();
+    emergencyStopWorking();
+    return;
   }
-  else if (asphErrorTher == NO_CONNECT)
+  else
   {
+    gAlarmSys.emerStop = 1;
+    if (state1 == EMER_STOP_PAGE)
+    {
+      kmi_display_home();
+    }
+  }
+//////////////////////////////////////////////////////////////////////////////////
+  if (asphErrorTher == NO_CONNECT)
+  {
+    gAlarmSys.asphTherDisc = 0;
     kmi_display_alarm_asphalt_dis();
+    emergencyStopWorking();
+    return;
   }
-  else if (asphErrorTher == SHORT_GND || asphErrorTher == SHORT_VCC)
+  else
   {
+    gAlarmSys.asphTherDisc = 1;
+    if (state1 == ASPHALT_DIS_PAGE)
+    {
+      kmi_display_home();
+    }
+  }
+//////////////////////////////////////////////////////////////////////////////////
+  if (asphErrorTher == SHORT_GND || asphErrorTher == SHORT_VCC)
+  {
+    gAlarmSys.asphTherShorted = 0;
     kmi_display_alarm_asphalt_shorted();
+    emergencyStopWorking();
+    return;
   }
-  else if (combErrorTher == NO_CONNECT)
+  else
   {
+    gAlarmSys.asphTherShorted = 1;
+    if (state1 == ASPHALT_SHORT_PAGE)
+    {
+      kmi_display_home();
+    }
+  }
+//////////////////////////////////////////////////////////////////////////////////  
+  if (combErrorTher == NO_CONNECT)
+  {
+    gAlarmSys.combTherDisc = 0;
     kmi_display_alarm_combustion_dis();
+    emergencyStopWorking();
+    return;
   }
-  else if (combErrorTher == SHORT_GND || combErrorTher == SHORT_VCC)
+  else
   {
-    kmi_display_alarm_combustion_shorted();
+    gAlarmSys.combTherDisc = 1;
+    if (state1 == COMBUSTION_DIS_PAGE)
+    {
+      kmi_display_home();
+    }
   }
-  // else if (gVoltageBattery < gUserSetInput.lowVoltageCheck)
-  // {
-  //   kmi_display_alarm_low_vol();
-  //   kmi_redisplay_alarm_low_vol();
-  // }
 
-
-
+  if (combErrorTher == SHORT_GND || combErrorTher == SHORT_VCC)
+  {
+    gAlarmSys.combTherShorted = 0;
+    kmi_display_alarm_combustion_shorted();
+    emergencyStopWorking();
+    return;
+  }
+  else
+  {
+    gAlarmSys.combTherShorted = 1;
+    if (state1 == COMBUSTION_SHORT_PAGE)
+    {
+      kmi_display_home();
+    }
+  }
+  
+  if (gVoltageBattery < (float)((gUserSetInput.lowVoltageCheck) / 100 + (((gUserSetInput.lowVoltageCheck) % 100) / 100)))
+  {
+    gAlarmSys.lowVoltage = 0;
+    kmi_display_alarm_low_vol();
+    kmi_redisplay_alarm_low_vol();
+  }
+  else
+  {
+    gAlarmSys.lowVoltage = 1;
+    if (state1 == LOW_VOL_ALARM_PAGE)
+    {
+      kmi_display_home();
+    }
+  }
 }

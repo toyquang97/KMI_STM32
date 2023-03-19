@@ -134,6 +134,18 @@ typedef struct _SET_POINT_
   uint32_t resetPassword;
 }userInput_t;
 
+typedef struct _ALARM_
+{
+  bool asphTherDisc;
+  bool combTherDisc;
+  bool asphTherShorted;
+  bool combTherShorted;
+  bool lowVoltage;
+  bool emerStop;
+  bool overTemp;
+}alarmType_t;
+
+
 typedef struct timer
 {
 	uint8_t Time_5ms : 1;	// 10ms 

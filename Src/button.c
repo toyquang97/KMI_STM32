@@ -48,12 +48,11 @@ void emergencyStopWorking(void)
     disableBurner();
     disablePowerBurner();
     disableLightBarWorking();
-    gTriggerAlarm = 1;
 }
 
 void burnerWorkingCondition(buttonCall_t pButton)
 {
-    if (pButton.enableBurner == 0)
+    if (pButton.enableBurner == 0 && gAlarmSys.asphTherDisc && gAlarmSys.asphTherShorted && gAlarmSys.combTherDisc && gAlarmSys.combTherShorted && gAlarmSys.emerStop && gAlarmSys.lowVoltage)
     {
         enableBurner();
         enablePowerBurner();
@@ -70,8 +69,4 @@ void burnerWorkingCondition(buttonCall_t pButton)
     {
         emergencyStopWorking();
     }  
-    else if(pButton.eStopEmergency == 0)
-    {
-        gTriggerAlarm = 0;
-    }
 }
