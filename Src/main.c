@@ -79,11 +79,10 @@ bool gTriggerAlarm = 0;
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
-float gCpRuntime = 0;
-float gBurnerRuntime = 0;
 buttonCall_t gButton;
 userInput_t gUserSetInput;
 userInput_t gUserSaveDataTemp;
+userInput_t userDefaultValue = {730,750,800,0,0,0,1,0};
 tickTimer gFlagTimer;
 /* USER CODE END 0 */
 
@@ -151,12 +150,12 @@ int main(void)
     }
     if(gFlagTimer.Time_10ms)
     {
-      onScreenDisplay();
       gFlagTimer.Time_10ms = 0;
     }
     if(gFlagTimer.Time_50ms)
     {
-      readButtonWorking(&gButton);
+			readButtonWorking(&gButton);
+      onScreenDisplay();
       burnerWorkingCondition(gButton);
 #if KEEP_DEBUG
       memset(&gButton, 1, 4);
@@ -171,6 +170,8 @@ int main(void)
     if(gFlagTimer.Time_500ms)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
+     //kmi_display_cover_reset_pw();
+
       gFlagTimer.Time_500ms = 0;
     }
 		

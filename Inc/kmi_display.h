@@ -16,6 +16,7 @@
 #include "stdbool.h"
 #include "MAX31855.h"
 #include "string.h"
+#include "math.h"
 
 extern uint8_t state1;
 enum {
@@ -92,5 +93,10 @@ void kmi_display_alarm_over_temp(void);
 void kmi_display_alarm_emer_stop(void);
 void kmi_redisplay_asph_setpoint (void);
 void kmi_redisplay_comb_setpoint (void);
-
+void kmi_redisplay_burner_delay_setting (void);
+void kmi_redisplay_burner_reset_auth (uint8_t index);
+void kmi_redisplay_cp_reset_auth (uint8_t index);
+void kmi_display_cover_reset_pw(void);
+void kmi_redisplay_cp_runtime(void);
+void kmi_redisplay_burner_runtime(void);
 #endif /* INC_KMI_DISPLAY_H_ */

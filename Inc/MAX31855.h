@@ -74,4 +74,5 @@ bool checkFrameData(uint32_t rawData);
 errorType_t getErrorType(uint8_t rawData);
 void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type);
 void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, userInput_t type);
+void convertDataRunTime(userInput_t *pData);
 #endif

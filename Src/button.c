@@ -9,6 +9,7 @@ void readButtonWorking(buttonCall_t *pButton)
     pButton->button4 = HAL_GPIO_ReadPin(BT4_GPIO_Port,BT4_Pin);
     pButton->eStopEmergency = HAL_GPIO_ReadPin(E_STOP_GPIO_Port,E_STOP_Pin);
     pButton->enableBurner = HAL_GPIO_ReadPin(EN_BURNER_GPIO_Port,EN_BURNER_Pin);
+    HAL_Delay(5);
 #endif
 }
 

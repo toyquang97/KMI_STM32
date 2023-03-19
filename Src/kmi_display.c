@@ -184,8 +184,6 @@ void kmi_redisplay_home(void)
 	LCD_puts(" ");
 	LCD_setCursor(2, 12);
 	LCD_puts(buffCombustion);
-
-
 }
 
 void kmi_display_menu(void)
@@ -322,12 +320,12 @@ void kmi_display_temp (void)
 void kmi_display_temp_unit (void)
 {
 	state1 = TEMP_UNIT_PAGE;
-	char buff[20];
+
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("TEMPERATURE UNITS");
 	LCD_setCursor(1, 0);
-	LCD_puts(buff);
+	LCD_puts("            CYCLE-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
 }
@@ -345,9 +343,6 @@ void kmi_redisplay_temp_unit (void)
 	{
 		strcpy(buff, "deg F");
 	}
-	LCD_puts(buff);
-	LCD_setCursor(1, 12);
-	strcpy(buff, "CYCLE-->");
 	LCD_puts(buff);
 }
 
@@ -370,23 +365,30 @@ void kmi_redisplay_asph_setpoint (void)
 	char buff[10];
 	state1 = ASPHALT_SETPOINTS_PAGE;
 	LCD_setCursor(1, 7);
-	sprintf(buff,"%3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	sprintf(buff,"%3.3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
 	LCD_puts(buff);
 	LCD_setCursor(2, 7);
-	sprintf(buff,"%3d %c", gUserSaveDataTemp.lowEnableAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	sprintf(buff,"%3.3d %c", gUserSaveDataTemp.lowEnableAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
 	LCD_puts(buff);
 }
 
 void kmi_display_asph_setpoint (void)
 {
+	char buff[10];
 	state1 = ASPHALT_SETPOINTS_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("ASPH. SETPOINT     ^");
 	LCD_setCursor(1, 0);
 	LCD_puts("TARGET             >");
+	LCD_setCursor(1, 7);
+	sprintf(buff,"%3.3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
 	LCD_setCursor(2, 0);
 	LCD_puts("LO/ENA        ESC-->");
+	LCD_setCursor(2, 7);
+	sprintf(buff,"%3.3d %c", gUserSaveDataTemp.lowEnableAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
     setBlinkCursorLCD(1,7);
@@ -394,13 +396,16 @@ void kmi_display_asph_setpoint (void)
 
 void kmi_display_comb_setpoint (void)
 {
+	char buff[20];
 	state1 = COMBUSTION_SETPOINTS_PAGE;
 	LCD_clear();
-
 	LCD_setCursor(0, 0);
 	LCD_puts("COMBUSTION SET     ^");
 	LCD_setCursor(1, 0);
 	LCD_puts("ALARM              >");
+	LCD_setCursor(1, 6);
+	sprintf(buff,"%3.0d %c", (uint16_t)gUserSaveDataTemp.overTempCombustionAlarm, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
 	LCD_setCursor(2, 0);
 	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
@@ -410,25 +415,39 @@ void kmi_display_comb_setpoint (void)
 
 void kmi_redisplay_comb_setpoint (void)
 {
-	char buff[10];
+	char buff[20];
 	state1 = COMBUSTION_SETPOINTS_PAGE;
 	LCD_setCursor(1, 6);
-	sprintf(buff,"%3d %c", gUserSaveDataTemp.targetTempAsphaltSet, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	sprintf(buff,"%3.3d %c", (uint16_t)gUserSaveDataTemp.overTempCombustionAlarm, gUserSaveDataTemp.temperatureUnit ? 'F' : 'C');
+	LCD_puts(buff);
+}
+
+void kmi_redisplay_burner_delay_setting (void)
+{
+	char buff[10];
+	state1 = BURNER_DELAY_SETTINGS_PAGE;
+	LCD_setCursor(1, 0);
+	sprintf(buff,"%3.3d", gUserSaveDataTemp.burnerDelaySet);
 	LCD_puts(buff);
 }
 
 void kmi_display_burner_delay_setting (void)
 {
+	char buff[10];
 	state1 = BURNER_DELAY_SETTINGS_PAGE;
 	LCD_clear();
 	LCD_setCursor(0, 0);
 	LCD_puts("BURNER DELAY TIME  ^");
 	LCD_setCursor(1, 0);
-	LCD_puts("### HR             >");
+	LCD_puts("    HR             >");
+	LCD_setCursor(1, 0);
+	sprintf(buff,"%3.3d", gUserSaveDataTemp.burnerDelaySet);
+	LCD_puts(buff);
 	LCD_setCursor(2, 0);
 	LCD_puts("              ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
+    setBlinkCursorLCD(1,0);
 }
 
 void kmi_display_runtimes (void)
@@ -452,11 +471,22 @@ void kmi_display_cp_runtime (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("CP RUN TIME");
 	LCD_setCursor(1, 0);
-	LCD_puts("##.### HRS          ");
+	LCD_puts("                    ");
 	LCD_setCursor(2, 0);
 	LCD_puts("            RESET-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("             BACK-->");
+}
+
+void kmi_redisplay_cp_runtime (void)
+{
+	char buff[6];
+	state1 = CP_RUNTIMES_PAGE;
+	// LCD_setCursor(1, 0);
+	// LCD_puts("                    ");
+	LCD_setCursor(1, 0);
+	sprintf(buff,"%d %s", gUserSaveDataTemp.cpRuntime, "HRS" );
+	LCD_puts(buff);
 }
 
 void kmi_display_cp_reset_auth (void)
@@ -468,11 +498,20 @@ void kmi_display_cp_reset_auth (void)
 	LCD_setCursor(1, 0);
 	LCD_puts("PASSWORD           >");
 	LCD_setCursor(2, 0);
-	LCD_puts("####          ESC-->");
+	LCD_puts("#####         ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
 	LCD_setCursor(2, 0);
-	LCD_sendCmd(0x0D);
+	setBlinkCursorLCD(2,0);
+}
+
+void kmi_redisplay_cp_reset_auth (uint8_t index)
+{
+	char buff[6];
+	state1 = CP_RESET_AUTH_PAGE;
+	LCD_setCursor(2, index);
+	sprintf(buff,"%1.1d", ((gUserSaveDataTemp.resetPassword) / (uint32_t)(pow(10, (4-index))) % 10));
+	LCD_puts(buff);
 }
 
 void kmi_display_burner_runtime (void)
@@ -482,11 +521,22 @@ void kmi_display_burner_runtime (void)
 	LCD_setCursor(0, 0);
 	LCD_puts("BURNER RUN TIME");
 	LCD_setCursor(1, 0);
-	LCD_puts("##.### HRS          ");
+	LCD_puts("                    ");
 	LCD_setCursor(2, 0);
 	LCD_puts("            RESET-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("             BACK-->");
+}
+
+void kmi_redisplay_burner_runtime (void)
+{
+	char buff[6];
+	state1 = BURNER_RUNTIMES_PAGE;
+	// LCD_setCursor(1, 0);
+	// LCD_puts("                    ");
+	LCD_setCursor(1, 0);
+	sprintf(buff,"%d %s", gUserSaveDataTemp.burnerRuntime, "HRS" );
+	LCD_puts(buff);
 }
 
 void kmi_display_burner_reset_auth (void)
@@ -498,12 +548,22 @@ void kmi_display_burner_reset_auth (void)
 	LCD_setCursor(1, 0);
 	LCD_puts("PASSWORD           >");
 	LCD_setCursor(2, 0);
-	LCD_puts("####          ESC-->");
+	LCD_puts("#####         ESC-->");
 	LCD_setCursor(3, 0);
 	LCD_puts("               OK-->");
-	LCD_setCursor(2, 0);
-	LCD_sendCmd(0x0D);
+	setBlinkCursorLCD(2,0);
 }
+
+void kmi_redisplay_burner_reset_auth (uint8_t index)
+{
+	char buff[6];
+	state1 = BURNER_RESET_AUTH_PAGE;
+	LCD_setCursor(2, index);
+	sprintf(buff,"%1.1d", ((gUserSaveDataTemp.resetPassword) / (uint32_t)(pow(10, (4-index))) % 10));
+	LCD_puts(buff);
+
+}
+
 void kmi_display_burner (void)
 {
 	state1 = BURNER_PAGE;
@@ -522,6 +582,15 @@ void kmi_display_asphalt (void)
 	LCD_puts("####               ^");
 	LCD_setCursor(3, 0);
 	LCD_puts("             BACK-->");
+}
+
+void kmi_display_cover_reset_pw(void)
+{
+	if (state1 == BURNER_RESET_AUTH_PAGE || state1 == CP_RESET_AUTH_PAGE)
+	{
+		LCD_setCursor(2, 0);
+		LCD_puts("#####");
+	}
 }
 
 void kmi_change_display(uint8_t userValue)

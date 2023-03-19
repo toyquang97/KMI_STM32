@@ -5,7 +5,7 @@
  Hardware:  Any STM32 device
 *************************************************************************************/
 #include"MAX31855.h"
-
+extern userInput_t gUserSaveDataTemp;
 // ------------------- Functions ----------------
 uint32_t readThermocoupleData(chamberType_t type)
 {
@@ -94,6 +94,23 @@ void convertUnitTemperature(float *pAsphastTemp, float *pCombustionTemp, userInp
     *pAsphastTemp    = (*pAsphastTemp) * 1.8 + 32;
     *pCombustionTemp = (*pCombustionTemp) * 1.8 + 32;
   }
+}
+
+void convertDataRunTime(userInput_t *pData)
+{
+  if (pData->temperatureUnit == FAHRENHEIT)
+  {
+    pData->targetTempAsphaltSet    = (pData->targetTempAsphaltSet) * 1.8 + 32;
+    pData->lowEnableAsphaltSet     = (pData->lowEnableAsphaltSet) * 1.8 + 32;
+    pData->overTempCombustionAlarm = (pData->overTempCombustionAlarm) * 1.8 + 32;
+  }
+  else if (pData->temperatureUnit == CELSIUS)
+  {
+	pData->targetTempAsphaltSet    = ((pData->targetTempAsphaltSet)   - 32) / 1.8;
+    pData->lowEnableAsphaltSet     = ((pData->lowEnableAsphaltSet)    - 32) / 1.8;
+    pData->overTempCombustionAlarm = ((pData->overTempCombustionAlarm)- 32) / 1.8;
+  }
+  
 }
 
 void readBothSensor(float *pAsphastTemp, float *pCombustionTemp, userInput_t type)

@@ -79,13 +79,19 @@ void controlContrastLCD(uint8_t percent)
 void clearCursorLCD(uint8_t *pIndex)
 {
     LCD_sendCmd(0x0C);
-    *pIndex = 1;
+    *pIndex = 0;
 }
 
 void setBlinkCursorLCD(uint8_t row, uint8_t col)
 {
     LCD_setCursor(row, col);
+    LCD_sendCmd(0x0C);
     LCD_sendCmd(0x0D);
+}
+
+void setClrCurWithoutReset(void)
+{
+    LCD_sendCmd(0x0C);
 }
 
 // Brightness control by transistor pull low, so pwm should invert

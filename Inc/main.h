@@ -130,8 +130,7 @@ typedef struct _SET_POINT_
   uint16_t cpRuntime;
   uint16_t burnerRuntime;
   bool temperatureUnit;
-  uint16_t cpRTResetPassword;
-  uint16_t burnerRTResetPassword;
+  volatile uint32_t resetPassword;
 }userInput_t;
 
 typedef struct timer

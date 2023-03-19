@@ -68,6 +68,8 @@ void LCD_scroll(uint8_t isScroll);
 
 void setBlinkCursorLCD(uint8_t row, uint8_t col);
 
+void setClrCurWithoutReset(void);
+
 void clearCursorLCD(uint8_t *pIndex);
 
 void initBriConLCD(void);
