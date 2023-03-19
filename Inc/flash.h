@@ -35,7 +35,7 @@ void 	Flash_ProgramPage(char* dataIn, uint32_t addr1, uint32_t addr2);
 
 void Flash_Write_Bytes(uint32_t addr, uint16_t* data,uint16_t len);
 void Flash_Read_Bytes(uint16_t* dataOut, uint32_t addr1, uint16_t len);
-void userDataInit(userInput_t *userSet, userInput_t *userSetTemp);
+void userDataInit(userInput_t *userSet, userInput_t *userSetTemp, userInput_t defaultValue);
 void userInputWriteFlash(userInput_t userSet);
 
 #else
@@ -51,7 +51,7 @@ extern void 	Flash_ProgramPage(char* dataIn, uint32_t addr1, uint32_t addr2);
 
 extern void Flash_Write_Bytes(uint32_t addr, uint16_t* data,uint16_t len);
 extern void Flash_Read_Bytes(uint16_t* dataOut, uint32_t addr1, uint16_t len);
-extern void userDataInit(userInput_t *userSet, userInput_t *userSetTemp);
+extern void userDataInit(userInput_t *userSet, userInput_t *userSetTemp, userInput_t defaultValue);
 extern void userInputWriteFlash(userInput_t userSet);
 
 #endif

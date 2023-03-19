@@ -142,7 +142,7 @@ int main(void)
   kmi_change_display(STARTUP_PAGE);
   HAL_Delay(1000);
   kmi_change_display(HOME_PAGE);
-  userDataInit(&gUserSetInput, &gUserSaveDataTemp);
+  userDataInit(&gUserSetInput, &gUserSaveDataTemp, userDefaultValue);
 
   /* USER CODE END 2 */
 

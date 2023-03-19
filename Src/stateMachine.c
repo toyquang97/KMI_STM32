@@ -322,37 +322,52 @@ void setBlinkIndexUser(uint8_t index[][2], uint8_t count)
 
 void increaseValueSetpoint(uint8_t index, uint16_t *pGetValue)
 {
-  uint8_t hundred = 0, ten =0, unit = 0;
+  uint8_t temp[5];
   bool displayCursorLowENA = 0;
   if (state1 == COMBUSTION_SETPOINTS_PAGE || state1 == BURNER_DELAY_SETTINGS_PAGE || state1 == ASPHALT_SETPOINTS_PAGE)
   {
-      hundred = *pGetValue / 100;
-      ten = (*pGetValue / 10) % 10;
-      unit = (*pGetValue % 100) % 10;
+      temp[0] = (*pGetValue / 100);
+      temp[1] = (*pGetValue / 10) % 10;
+      temp[2] = (*pGetValue / 1)  % 10;
       if(index >= 3)
       {
         index -= 3; // use for ASPHALT set low enable value
         displayCursorLowENA = 1;
       }
-      if (index == 0)
+      for (int i = 0; i < 5; i++)
       {
-        hundred++;
-        if (hundred > 9)
-          hundred = 0;
+        if (gUserSaveDataTemp.temperatureUnit == FAHRENHEIT)
+        {
+          if (index == i)
+          {
+            temp[i]++;
+            if (temp[i] > 9)
+            {
+              temp[i] = 0;
+            }
+          }
+        }
+        else
+        {
+          if (index == i)
+          {
+            temp[i]++;
+            if (temp[0] > 5)
+            {
+              temp[0] = 0;
+            }
+            if (temp[1] > 9)
+            {
+              temp[1] = 0;
+            }
+            if (temp[2] > 9)
+            {
+              temp[2] = 0;
+            }
+          }
+        }
       }
-      else if (index == 1)
-      {
-        ten++;
-        if (ten > 9)
-          ten = 0;
-      }
-      else if (index == 2)
-      {
-        unit++;
-        if (unit > 9)
-          unit = 0;
-      }
-    *pGetValue = (hundred*100 + ten*10 + unit);
+    *pGetValue = (temp[0]*100 + temp[1]*10 + temp[2]);
   }
 
   if (displayCursorLowENA)

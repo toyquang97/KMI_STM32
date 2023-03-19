@@ -1,8 +1,8 @@
 #define _FLASH_C
-#include <flash.h>
+#include "flash.h"
 
 uint8_t lengthPage;
-
+extern userInput_t userDefaultValue;
 void deleteBuffer(char* data)
 {
 	uint8_t len = strlen(data);
@@ -130,11 +130,17 @@ void Flash_ProgramPage(char* dataIn, uint32_t addr1, uint32_t addr2)
 	Flash_Write_Char(addr2,tempbuf);
 }
 
-void userDataInit(userInput_t *userSet, userInput_t *userSetTemp)
+void userDataInit(userInput_t *userSet, userInput_t *userSetTemp, userInput_t defaultValue)
 {
 	memset(userSet, 0, sizeof(userInput_t));
 	Flash_Read_Bytes((uint16_t *)userSet, DATA_START_ADDRESS, USER_WRITE_SIZE);
 	memcpy(userSetTemp, userSet, sizeof(userInput_t));
+	if (userSet->targetTempAsphaltSet == 0 || userSet->targetTempAsphaltSet > 999 || userSet->overTempCombustionAlarm == 0 || userSet->overTempCombustionAlarm > 999)
+	{
+		userInputWriteFlash(defaultValue);
+		Flash_Read_Bytes((uint16_t *)userSet, DATA_START_ADDRESS, USER_WRITE_SIZE);
+		memcpy(userSetTemp, userSet, sizeof(userInput_t));
+	}
 }
 
 void userInputWriteFlash(userInput_t userSet)
