@@ -143,6 +143,7 @@ typedef struct _ALARM_
   bool lowVoltage;
   bool emerStop;
   bool overTemp;
+  bool trigerAll;
 }alarmType_t;
 
 

@@ -715,21 +715,23 @@ void blinkAlarmLCD(void)
 {
   if(!gAlarmSys.lowVoltage || !gAlarmSys.asphTherDisc || !gAlarmSys.combTherDisc || !gAlarmSys.asphTherShorted || !gAlarmSys.combTherShorted || !gAlarmSys.emerStop)
   {
+    gAlarmSys.trigerAll = 0;
     blinkBlackLightAlarm();
     turnOnBuzzer();
   }
   else
   {
+    gAlarmSys.trigerAll = 1;
     controlBrightLCD(100);
     turnOffBuzzer();
   }
 
-  if (checkButtonUnworking > 5)
+  if (checkButtonUnworking > 5 && gAlarmSys.trigerAll == 1)
   {
-    checkButtonUnworking = 5;
+    checkButtonUnworking = 6;
     controlBrightLCD(0);
   }
-  if (checkButtonUnworking == 0)
+  if (checkButtonUnworking == 0 && gAlarmSys.trigerAll == 1)
   {
     controlBrightLCD(100);
   }

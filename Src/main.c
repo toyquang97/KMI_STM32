@@ -186,6 +186,11 @@ int main(void)
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
       gFlagTimer.Time_500ms = 0;
     }
+    if(gFlagTimer.Time_1000ms)
+    {
+      blinkAlarmLCD();
+      gFlagTimer.Time_1000ms = 0;
+    }
     if(gFlagTimer.Time_2s)
     {
       HAL_GPIO_TogglePin(LED2_GPIO_Port,LED2_Pin);
