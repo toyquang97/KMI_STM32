@@ -78,4 +78,6 @@ void controlContrastLCD(uint8_t percent);
 
 void controlBrightLCD(uint8_t percent);
 
+void blinkBlackLightAlarm(void);
+
 #endif /* LCD_H_ */

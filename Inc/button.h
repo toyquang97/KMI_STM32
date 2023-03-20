@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include "stdbool.h"
 extern alarmType_t gAlarmSys;
+extern userInput_t gUserSetInput;
+extern userInput_t gUserSaveDataTemp;
+extern float gAsphaltTemp;
+extern float gCombustionTemp;
+extern float gVoltageBattery;
 
 typedef enum 
 {
@@ -25,5 +30,7 @@ typedef struct
 void readButtonWorking(buttonCall_t *pButton);
 void burnerWorkingCondition(buttonCall_t pButton);
 void emergencyStopWorking(void);
+void turnOffBuzzer(void);
+void turnOnBuzzer(void);
 
 #endif

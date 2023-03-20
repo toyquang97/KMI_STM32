@@ -13,6 +13,16 @@ void readButtonWorking(buttonCall_t *pButton)
 #endif
 }
 
+void turnOnBuzzer(void)
+{
+  HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin,GPIO_PIN_RESET);
+}
+
+void turnOffBuzzer(void)
+{
+  HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin,GPIO_PIN_SET);
+}
+
 void enableBurner(void)
 {
   HAL_GPIO_WritePin(BURNER_EN_GPIO_Port,BURNER_EN_Pin,GPIO_PIN_SET);
@@ -52,11 +62,19 @@ void emergencyStopWorking(void)
 
 void burnerWorkingCondition(buttonCall_t pButton)
 {
-    if (pButton.enableBurner == 0 && gAlarmSys.asphTherDisc && gAlarmSys.asphTherShorted && gAlarmSys.combTherDisc && gAlarmSys.combTherShorted && gAlarmSys.emerStop && gAlarmSys.lowVoltage)
+    if (gUserSetInput.burnerDelaySet == 0 && pButton.enableBurner == 0 && gAlarmSys.asphTherDisc && gAlarmSys.asphTherShorted && gAlarmSys.combTherDisc && gAlarmSys.combTherShorted && gAlarmSys.emerStop && gAlarmSys.lowVoltage)
     {
-        enableBurner();
-        enablePowerBurner();
-        enableLightBarWorking();
+        if (gAsphaltTemp >= gUserSetInput.targetTempAsphaltSet)
+        {
+            disableBurner();
+            disablePowerBurner();
+        }
+        else if(gAsphaltTemp <= gUserSetInput.lowEnableAsphaltSet)
+        {
+            enableBurner();
+            enablePowerBurner();
+            enableLightBarWorking();
+        }
     }
     else
     {

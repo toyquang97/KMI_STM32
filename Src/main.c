@@ -85,7 +85,7 @@ buttonCall_t gButton;
 
 userInput_t gUserSetInput;
 userInput_t gUserSaveDataTemp;
-userInput_t userDefaultValue = {730,750,800,0,0,0,1005,1,0};
+userInput_t userDefaultValue = {750,730,800,0,0,0,1005,1,0};
 
 tickTimer gFlagTimer;
 
@@ -194,6 +194,15 @@ int main(void)
     }
     if(gFlagTimer.Time_1hr) // cpRuntime count evey 1 hour, and save to flash
     {
+      if(gUserSaveDataTemp.burnerDelaySet > 0)
+      {
+        gUserSaveDataTemp.burnerDelaySet--;
+      }
+      else if (gUserSaveDataTemp.burnerDelaySet <= 0)
+      {
+        gUserSaveDataTemp.burnerDelaySet = 0;
+      }
+      
       gUserSaveDataTemp.cpRuntime++;
       memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
       userInputWriteFlash(gUserSetInput);

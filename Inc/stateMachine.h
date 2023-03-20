@@ -23,6 +23,7 @@ extern errorType_t asphErrorTher;
 extern errorType_t combErrorTher;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
+extern uint8_t checkButtonUnworking;
 
 #define DELAY_TIME_USER 250
 
@@ -46,4 +47,5 @@ void killSystemWorking(void);
 void checkAlarmSystem(void);
 void setLowVoltageSetpoint(uint8_t index);
 void getLowVoltageSetpoint(uint8_t index, uint16_t *pGetValue);
+void blinkAlarmLCD(void);
 #endif

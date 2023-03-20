@@ -7,6 +7,7 @@ uint8_t count = 0;
 uint32_t count1 = 0;
 uint32_t countMins = 0;
 extern tickTimer gFlagTimer;
+uint8_t checkButtonUnworking = 0;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -43,8 +44,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         gFlagTimer.Time_1m = 1;
         count1 = 0;
         countMins++;
-        if(countMins % 60)
+        checkButtonUnworking++;
+        if((countMins % 60) == 0)
         {
+          countMins = 0;
           gFlagTimer.Time_1hr = 1;
         }
       }

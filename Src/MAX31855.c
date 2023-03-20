@@ -53,6 +53,10 @@ float getTemperatureData(chamberType_t type, errorType_t *pError)
 
 	rawData = readThermocoupleData(type);
 	*pError = getErrorType(rawData);
+	if(rawData & BIT16)
+	{
+		return -999;
+	}
 	tempData = (rawData >> 18) & 0x1FFF; // get data bit 18 -> bit 30
 	if (rawData >> 31) // get sign
 	{

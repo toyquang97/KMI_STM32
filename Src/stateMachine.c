@@ -9,6 +9,7 @@ void onScreenDisplay(void)
 	// static uint8_t index = 0;
     if (!gButton.button1)
     {
+      checkButtonUnworking = 0;
       switch (state1)
       {
       case MENU_PAGE:
@@ -55,6 +56,7 @@ void onScreenDisplay(void)
     }
     if (!gButton.button2)
     {
+      checkButtonUnworking = 0;
       switch (state1)
       {
       case MENU_PAGE:
@@ -123,6 +125,7 @@ void onScreenDisplay(void)
 
     if (!gButton.button3)
     {
+      checkButtonUnworking = 0;
       switch (state1)
       {
       case STARTUP_PAGE:
@@ -195,6 +198,7 @@ void onScreenDisplay(void)
     ////Button4////
     if (!gButton.button4)
     {
+      checkButtonUnworking = 0;
       switch (state1)
       {
       case SETTINGS_PAGE:
@@ -599,6 +603,7 @@ void checkAlarmSystem(void)
   {
     kmi_display_alarm_over_temp();
     killSystemWorking();
+    return;
   }
 //////////////////////////////////////////////////////////////////////////////////
   if (gButton.eStopEmergency)
@@ -686,6 +691,7 @@ void checkAlarmSystem(void)
     gAlarmSys.lowVoltage = 0;
     kmi_display_alarm_low_vol();
     kmi_redisplay_alarm_low_vol();
+    return;
   }
   else
   {
@@ -694,5 +700,37 @@ void checkAlarmSystem(void)
     {
       kmi_display_home();
     }
+  }
+
+  // if (gUserSetInput.targetTempAsphaltSet < gUserSetInput.lowEnableAsphaltSet || gUserSetInput.overTempCombustionAlarm < gUserSetInput.targetTempAsphaltSet)
+  // {
+  //   memcpy(&gUserSetInput, &userDefaultValue, USER_WRITE_SIZE);
+  //   memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
+  //   userInputWriteFlash(gUserSetInput);
+  //   return;
+  // }
+}
+
+void blinkAlarmLCD(void)
+{
+  if(!gAlarmSys.lowVoltage || !gAlarmSys.asphTherDisc || !gAlarmSys.combTherDisc || !gAlarmSys.asphTherShorted || !gAlarmSys.combTherShorted || !gAlarmSys.emerStop)
+  {
+    blinkBlackLightAlarm();
+    turnOnBuzzer();
+  }
+  else
+  {
+    controlBrightLCD(100);
+    turnOffBuzzer();
+  }
+
+  if (checkButtonUnworking > 5)
+  {
+    checkButtonUnworking = 5;
+    controlBrightLCD(0);
+  }
+  if (checkButtonUnworking == 0)
+  {
+    controlBrightLCD(100);
   }
 }

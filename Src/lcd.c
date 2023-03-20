@@ -110,3 +110,18 @@ void initBriConLCD(void)
     __HAL_TIM_SetCompare(&CONTRAST_PWM,TIM_CHANNEL_1,95);
     __HAL_TIM_SetCompare(&BRIGHTNESS_PWM,TIM_CHANNEL_2,90);
 }
+
+void blinkBlackLightAlarm(void)
+{
+    static bool blink = 0;
+    if (blink)
+    {
+        controlBrightLCD(0);
+        blink = 0;
+    }
+    else
+    {
+        controlBrightLCD(100);
+        blink = 1;
+    }
+}
