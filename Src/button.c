@@ -66,11 +66,13 @@ void burnerWorkingCondition(buttonCall_t pButton)
     {
         if (gAsphaltTemp >= gUserSetInput.targetTempAsphaltSet)
         {
+            gTriggerBurnerWork = 0;
             disableBurner();
             disablePowerBurner();
         }
         else if(gAsphaltTemp <= gUserSetInput.lowEnableAsphaltSet)
         {
+            gTriggerBurnerWork = 1;
             enableBurner();
             enablePowerBurner();
             enableLightBarWorking();
@@ -78,6 +80,7 @@ void burnerWorkingCondition(buttonCall_t pButton)
     }
     else
     {
+        gTriggerBurnerWork = 0;
         disableBurner();
         disablePowerBurner();
         disableLightBarWorking();

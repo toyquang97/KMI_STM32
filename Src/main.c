@@ -80,7 +80,7 @@ static void MX_USART1_UART_Init(void);
 float gAsphaltTemp = 0;
 float gCombustionTemp = 0;
 float gVoltageBattery = 0;
-
+bool gTriggerBurnerWork = 0;
 buttonCall_t gButton;
 
 userInput_t gUserSetInput;
@@ -164,6 +164,7 @@ int main(void)
     if(gFlagTimer.Time_10ms)
     {
       checkAlarmSystem();
+      triggerAlarmSignal();
       gFlagTimer.Time_10ms = 0;
     }
     if(gFlagTimer.Time_50ms)
@@ -184,6 +185,7 @@ int main(void)
     if(gFlagTimer.Time_500ms)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
+      checkButtonLongTimeDepress();
       gFlagTimer.Time_500ms = 0;
     }
     if(gFlagTimer.Time_1000ms)

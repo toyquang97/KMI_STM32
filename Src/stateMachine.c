@@ -576,6 +576,15 @@ void isConfirmOk(uint8_t *pIndex)
       }
   }
 
+  if (gUserSaveDataTemp.targetTempAsphaltSet < gUserSaveDataTemp.lowEnableAsphaltSet)
+  {
+    memcpy(&gUserSetInput, &userDefaultValue, USER_WRITE_SIZE);
+    memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
+    userInputWriteFlash(gUserSetInput);
+    clearCursorLCD(pIndex);
+    return;
+  }
+
   gUserSaveDataTemp.resetPassword = 0;
   memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
   userInputWriteFlash(gUserSetInput);
@@ -701,37 +710,47 @@ void checkAlarmSystem(void)
       kmi_display_home();
     }
   }
+}
 
-  // if (gUserSetInput.targetTempAsphaltSet < gUserSetInput.lowEnableAsphaltSet || gUserSetInput.overTempCombustionAlarm < gUserSetInput.targetTempAsphaltSet)
-  // {
-  //   memcpy(&gUserSetInput, &userDefaultValue, USER_WRITE_SIZE);
-  //   memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
-  //   userInputWriteFlash(gUserSetInput);
-  //   return;
-  // }
+void triggerAlarmSignal(void)
+{
+  if(!gAlarmSys.lowVoltage || !gAlarmSys.asphTherDisc || !gAlarmSys.combTherDisc || !gAlarmSys.asphTherShorted || !gAlarmSys.combTherShorted || !gAlarmSys.emerStop)
+  {
+    gAlarmSys.trigerAll = 1;
+  }
+  else
+  {
+    gAlarmSys.trigerAll = 0;
+  }
 }
 
 void blinkAlarmLCD(void)
 {
-  if(!gAlarmSys.lowVoltage || !gAlarmSys.asphTherDisc || !gAlarmSys.combTherDisc || !gAlarmSys.asphTherShorted || !gAlarmSys.combTherShorted || !gAlarmSys.emerStop)
+  if(gAlarmSys.trigerAll)
   {
-    gAlarmSys.trigerAll = 0;
+    checkButtonUnworking = 0;
     blinkBlackLightAlarm();
     turnOnBuzzer();
+    return;
   }
   else
   {
-    gAlarmSys.trigerAll = 1;
-    controlBrightLCD(100);
     turnOffBuzzer();
   }
+  if(checkButtonUnworking < 5)
+  {
+    controlBrightLCD(100);
+  }
+}
 
-  if (checkButtonUnworking > 5 && gAlarmSys.trigerAll == 1)
+void checkButtonLongTimeDepress(void)
+{
+  if (checkButtonUnworking > 5 && !gAlarmSys.trigerAll)
   {
     checkButtonUnworking = 6;
     controlBrightLCD(0);
   }
-  if (checkButtonUnworking == 0 && gAlarmSys.trigerAll == 1)
+  if (checkButtonUnworking == 0 && !gAlarmSys.trigerAll)
   {
     controlBrightLCD(100);
   }

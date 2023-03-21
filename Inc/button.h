@@ -9,6 +9,7 @@ extern userInput_t gUserSaveDataTemp;
 extern float gAsphaltTemp;
 extern float gCombustionTemp;
 extern float gVoltageBattery;
+extern bool gTriggerBurnerWork;
 
 typedef enum 
 {

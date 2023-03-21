@@ -1,13 +1,19 @@
 #include "main.h"
 #include "stdbool.h"
+#include "stdio.h"
+#include "flash.h"
 
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
+extern bool gTriggerBurnerWork;
+extern userInput_t gUserSetInput;
+extern userInput_t gUserSaveDataTemp;
 uint8_t count = 0;
 uint32_t count1 = 0;
 uint32_t countMins = 0;
 extern tickTimer gFlagTimer;
 uint8_t checkButtonUnworking = 0;
+uint8_t countBurnerWorkingTime = 0;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -45,10 +51,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         count1 = 0;
         countMins++;
         checkButtonUnworking++;
+        if(gTriggerBurnerWork)
+        {
+          countBurnerWorkingTime++;
+        }
         if((countMins % 60) == 0)
         {
           countMins = 0;
           gFlagTimer.Time_1hr = 1;
+        }
+        if((countBurnerWorkingTime % 60) == 0)
+        {
+          gUserSaveDataTemp.burnerRuntime++;
+          memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
+          userInputWriteFlash(gUserSetInput);
+          countBurnerWorkingTime = 0;
         }
       }
     }
