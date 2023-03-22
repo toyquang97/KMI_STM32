@@ -10,6 +10,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "stdbool.h"
+#include <math.h>
 
 // ------------------------- Defines -------------------------
 extern uint8_t Error;	   // Error Detection - 1-> No Connection / 2-> Short to GND / 4-> Short to VCC

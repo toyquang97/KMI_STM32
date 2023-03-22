@@ -49,7 +49,11 @@ void kmi_display_alarm_low_vol(void)
 	LCD_setCursor(0, 0);
 	LCD_puts("   !!! CAUTION !!!  ");
 	LCD_setCursor(1, 0);
-	LCD_puts("    BATTERY LOW     ");
+	LCD_puts("     BATTERY LOW    ");
+	LCD_setCursor(2, 0);
+	LCD_puts("     ");
+	LCD_setCursor(2, 10);
+	LCD_puts("  VDC     ");
 	LCD_setCursor(3, 0);
 	LCD_puts("   CHARGE BATTERY   ");
 }
@@ -58,8 +62,8 @@ void kmi_redisplay_alarm_low_vol(void)
 {
 	state1 = LOW_VOL_ALARM_PAGE;
 	char buff[20];
-	LCD_setCursor(2, 6);
-	sprintf(buff,"%.2f  VDC",gVoltageBattery);
+	LCD_setCursor(2, 5);
+	sprintf(buff,"%.2f",gVoltageBattery);
 	LCD_puts(buff);
 }
 

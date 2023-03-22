@@ -24,9 +24,6 @@ void onScreenDisplay(void)
       case TEMP_PAGE:
         kmi_change_display(TEMP_UNIT_PAGE);
         break;
-      case TEMP_SETPOINTS_PAGE:
-        kmi_change_display(ASPHALT_SETPOINTS_PAGE);
-        break;
       case ASPHALT_SETPOINTS_PAGE:
         if (index >= 3)
         {
@@ -399,11 +396,11 @@ void getLowVoltageSetpoint(uint8_t index, uint16_t *pGetValue)
         if (index == i)
         {
           temp[i]++;
-          if (temp[0] > 1) // not allow > 13V
+          if (temp[0] > 1) // not allow > 11.99V
           {
             temp[0] = 0;
           }
-          if (temp[1] > 3)
+          if (temp[1] > 1)
           {
             temp[1] = 0;
           }
@@ -554,6 +551,7 @@ void readLoadInputUserType(uint8_t index)
 
 void isConfirmOk(uint8_t *pIndex)
 {
+  static bool preTempUnit = FAHRENHEIT;
   if (gUserSaveDataTemp.resetPassword  == gFactoryResetPW)
   {
     memcpy(&gUserSetInput, &userDefaultValue, USER_WRITE_SIZE);
@@ -574,6 +572,11 @@ void isConfirmOk(uint8_t *pIndex)
       {
         gUserSaveDataTemp.cpRuntime = 0;
       }
+  }
+  if(preTempUnit != gUserSaveDataTemp.temperatureUnit)
+  {
+    convertDataRunTime(&gUserSaveDataTemp);
+    preTempUnit = gUserSaveDataTemp.temperatureUnit;
   }
 
   if (gUserSaveDataTemp.targetTempAsphaltSet < gUserSaveDataTemp.lowEnableAsphaltSet)
@@ -695,7 +698,7 @@ void checkAlarmSystem(void)
     }
   }
   
-  if (gVoltageBattery < (float)((gUserSetInput.lowVoltageCheck) / 100 + (((gUserSetInput.lowVoltageCheck) % 100) / 100)))
+  if (gVoltageBattery < (float)((gUserSetInput.lowVoltageCheck) / 100.0))
   {
     gAlarmSys.lowVoltage = 0;
     kmi_display_alarm_low_vol();

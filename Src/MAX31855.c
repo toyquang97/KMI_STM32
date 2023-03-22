@@ -105,15 +105,15 @@ void convertDataRunTime(userInput_t *pData)
 {
   if (pData->temperatureUnit == FAHRENHEIT)
   {
-    pData->targetTempAsphaltSet    = (pData->targetTempAsphaltSet) * 1.8 + 32;
-    pData->lowEnableAsphaltSet     = (pData->lowEnableAsphaltSet) * 1.8 + 32;
-    pData->overTempCombustionAlarm = (pData->overTempCombustionAlarm) * 1.8 + 32;
+    pData->targetTempAsphaltSet    = round((float)(pData->targetTempAsphaltSet) * 1.8 + 32);
+    pData->lowEnableAsphaltSet     = round((float)(pData->lowEnableAsphaltSet) * 1.8 + 32);
+    pData->overTempCombustionAlarm = round((float)(pData->overTempCombustionAlarm) * 1.8 + 32);
   }
   else if (pData->temperatureUnit == CELSIUS)
   {
-	pData->targetTempAsphaltSet    = ((pData->targetTempAsphaltSet)   - 32) / 1.8;
-    pData->lowEnableAsphaltSet     = ((pData->lowEnableAsphaltSet)    - 32) / 1.8;
-    pData->overTempCombustionAlarm = ((pData->overTempCombustionAlarm)- 32) / 1.8;
+	pData->targetTempAsphaltSet    = round((float)((pData->targetTempAsphaltSet)   - 32) / 1.8);
+    pData->lowEnableAsphaltSet     = round((float)((pData->lowEnableAsphaltSet)    - 32) / 1.8);
+    pData->overTempCombustionAlarm = round((float)((pData->overTempCombustionAlarm)- 32) / 1.8);
   }
   
 }
