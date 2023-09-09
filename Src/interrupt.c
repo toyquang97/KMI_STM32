@@ -54,18 +54,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if(gTriggerBurnerWork)
         {
           countBurnerWorkingTime++;
+					if((countBurnerWorkingTime % 60) == 0)
+					{
+						gUserSaveDataTemp.burnerRuntime++;
+						memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
+						userInputWriteFlash(gUserSetInput);
+						countBurnerWorkingTime = 0;
+					}
         }
         if((countMins % 60) == 0)
         {
           countMins = 0;
           gFlagTimer.Time_1hr = 1;
-        }
-        if((countBurnerWorkingTime % 60) == 0)
-        {
-          gUserSaveDataTemp.burnerRuntime++;
-          memcpy(&gUserSetInput, &gUserSaveDataTemp, USER_WRITE_SIZE);
-          userInputWriteFlash(gUserSetInput);
-          countBurnerWorkingTime = 0;
         }
       }
     }

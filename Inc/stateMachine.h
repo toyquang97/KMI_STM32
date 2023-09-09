@@ -50,4 +50,5 @@ void getLowVoltageSetpoint(uint8_t index, uint16_t *pGetValue);
 void blinkAlarmLCD(void);
 void triggerAlarmSignal(void);
 void checkButtonLongTimeDepress(void);
+void resetAlarmSignalByButton(uint8_t *pCountTime);
 #endif

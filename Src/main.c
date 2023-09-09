@@ -83,6 +83,8 @@ float gVoltageBattery = 0;
 bool gTriggerBurnerWork = 0;
 buttonCall_t gButton;
 
+uint8_t backDoorReset = 0;
+bool gTriggerBackDoorReset = 0;
 userInput_t gUserSetInput;
 userInput_t gUserSaveDataTemp;
 userInput_t userDefaultValue = {750,730,800,0,0,0,1005,1,0};
@@ -186,6 +188,7 @@ int main(void)
     {
       HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);
       checkButtonLongTimeDepress();
+			resetAlarmSignalByButton(&backDoorReset);
       gFlagTimer.Time_500ms = 0;
     }
     if(gFlagTimer.Time_1000ms)

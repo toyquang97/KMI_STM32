@@ -3,6 +3,7 @@
 uint32_t gPasswordReset  = 11111;
 uint32_t gFactoryResetPW = 61297;
 uint8_t index = 0;
+extern bool gTriggerBackDoorReset;
 
 void onScreenDisplay(void)
 {
@@ -260,7 +261,16 @@ void onScreenDisplay(void)
       default:
         break;
       }
+      if(gAlarmSys.trigerAll)
+      {
+        gTriggerBackDoorReset = 1;
+      }
     }
+    else 
+    {
+        gTriggerBackDoorReset = 0;
+    }
+
 }
 
 void changeUnitTemperature(void)
@@ -756,5 +766,30 @@ void checkButtonLongTimeDepress(void)
   if (checkButtonUnworking == 0 && !gAlarmSys.trigerAll)
   {
     controlBrightLCD(100);
+  }
+}
+
+void resetAlarmSignalByButton(uint8_t *pCountTime)
+{
+  if (gTriggerBackDoorReset)
+  {
+    (*pCountTime)++;
+  }
+  else
+  {
+    (*pCountTime) = 0;
+  }
+
+  if ((*pCountTime) > 20) // 500ms -> + 1:
+  {
+    memcpy(&gUserSetInput, &userDefaultValue, USER_WRITE_SIZE);
+    memcpy(&gUserSaveDataTemp, &gUserSetInput, USER_WRITE_SIZE);
+    userInputWriteFlash(gUserSetInput);
+    controlBrightLCD(100);
+    kmi_change_display(STARTUP_PAGE);
+    HAL_Delay(2000);
+    controlBrightLCD(100);
+    kmi_change_display(HOME_PAGE);
+    (*pCountTime) = 0;
   }
 }
